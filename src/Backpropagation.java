@@ -40,7 +40,9 @@ public class BackPropagation extends Classifier {
 
     public void setBiasValue(double biasValue) {
         SortedMap<Integer, Double> temp = new TreeMap<>();
-        temp.put(0, biasValue);
+        for (int i = 0; i < data.numInstances(); i++) {
+            temp.put(i, biasValue);
+        }
         neurons.put(0, new Neuron(temp, 0.0));
     }
 
@@ -185,21 +187,20 @@ public class BackPropagation extends Classifier {
         return weights.get(node2).get(node1)[0];
     }
 
-    public double computeOutputValue(int node) {
+    public double computeOutputValue(int node, int instanceNo) {
         double temp = 0;
         Map<Integer, Double[]> refs = findNodeBefore(node);
         Map<Integer, Double[]> refsAfter = findNodeAfter(node);
 
         for (Map.Entry<Integer, Double[]> ref : refs.entrySet()) {
-            temp += findWeight(ref.getKey(), node) * neurons.get(ref.getKey()).input.get(0);
+            temp += findWeight(ref.getKey(), node) * neurons.get(ref.getKey()).input.get(instanceNo);
         }
 
         Neuron n = new Neuron(neurons.get(node));
         n.outValue = temp;
-        if (n.input.size() == 0) {
-            n.input.put(0, ActivationClass.sigmoid(temp));
-        } else {
-            n.input.put(n.input.lastKey(), ActivationClass.sigmoid(temp));
+
+        for (int i = 0; i < data.numInstances(); i++) {
+            n.input.put(i, ActivationClass.sigmoid(temp));
         }
         neurons.put(node, n);
 
@@ -251,7 +252,7 @@ public class BackPropagation extends Classifier {
         }
     }
 
-    public void computeHiddenNeuronError() {
+    public void computeHiddenNeuronError(int instanceNo) {
         List<Integer> hiddenNeuron = neuronType.get("hidden");
         Map<Integer, Double[]> nodeAfter;
         double temp;
@@ -259,12 +260,12 @@ public class BackPropagation extends Classifier {
         Neuron n;
         for (int i = 0; i < hiddenNeuron.size(); i++) {
             n = neurons.get(hiddenNeuron.get(i));
-            n.error = n.input.get(0) * (1 - n.input.get(0));
+            n.error = n.input.get(instanceNo) * (1 - n.input.get(instanceNo));
 
             nodeAfter = findNodeAfter(hiddenNeuron.get(i));
             temp = 0;
             for (Map.Entry<Integer, Double[]> outNode : nodeAfter.entrySet()) {
-                temp += neurons.get(outNode.getKey()).error * findWeight(hiddenNeuron.get(i), outNode.getKey());
+                temp += (neurons.get(outNode.getKey()).error * findWeight(hiddenNeuron.get(i), outNode.getKey()));
             }
             n.error *= temp;
 
@@ -277,11 +278,17 @@ public class BackPropagation extends Classifier {
         for (Map.Entry<Integer, Map<Integer, Double[]>> weight: weights.entrySet()) {
             for (Map.Entry<Integer, Double[]> realWeight : weight.getValue().entrySet()) {
                 tempDouble = new Double[3];
-                tempDouble[1] = realWeight.getValue()[0];
+                System.out.println(weight.getKey() + " " + realWeight.getKey());
+                System.out.println(neurons.get(realWeight.getKey()).input.get(instanceNo));
+                System.out.println(neurons.get(weight.getKey()).error);
+                double d = realWeight.getValue()[0];
+                System.out.println("old: " + d);
                 tempDouble[2] = learningRate *
                         neurons.get(realWeight.getKey()).input.get(instanceNo) *
-                        neurons.get(weight.getKey()).error;
-                tempDouble[0] = tempDouble[1] + tempDouble[2];
+                        neurons.get(weight.getKey()).error + (momentum * realWeight.getValue()[2]); // compute delta weight
+                System.out.println("delta: " + tempDouble[2]);
+                tempDouble[1] = realWeight.getValue()[2]; // hold the old delta weight
+                tempDouble[0] = d + tempDouble[2];
                 realWeight.setValue(tempDouble);
             }
         }
