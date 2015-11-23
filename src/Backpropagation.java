@@ -278,15 +278,15 @@ public class BackPropagation extends Classifier {
         for (Map.Entry<Integer, Map<Integer, Double[]>> weight: weights.entrySet()) {
             for (Map.Entry<Integer, Double[]> realWeight : weight.getValue().entrySet()) {
                 tempDouble = new Double[3];
-                System.out.println(weight.getKey() + " " + realWeight.getKey());
-                System.out.println(neurons.get(realWeight.getKey()).input.get(instanceNo));
-                System.out.println(neurons.get(weight.getKey()).error);
+//                System.out.println(weight.getKey() + " " + realWeight.getKey());
+//                System.out.println(neurons.get(realWeight.getKey()).input.get(instanceNo));
+//                System.out.println(neurons.get(weight.getKey()).error);
                 double d = realWeight.getValue()[0];
-                System.out.println("old: " + d);
+//                System.out.println("old: " + d);
                 tempDouble[2] = learningRate *
                         neurons.get(realWeight.getKey()).input.get(instanceNo) *
                         neurons.get(weight.getKey()).error + (momentum * realWeight.getValue()[2]); // compute delta weight
-                System.out.println("delta: " + tempDouble[2]);
+//                System.out.println("delta: " + tempDouble[2]);
                 tempDouble[1] = realWeight.getValue()[2]; // hold the old delta weight
                 tempDouble[0] = d + tempDouble[2];
                 realWeight.setValue(tempDouble);
