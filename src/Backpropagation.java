@@ -13,19 +13,21 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Backpropagation Algorithm for ANN classifier
  * Created by rikysamuel on 11/4/2015.
  */
 public class BackPropagation extends Classifier {
+    private int numEpoch;
+    private int numOfHiddenNeuron;
+    private int numOfOutputNeuron;
+    private double learningRate;
+    private double momentum;
+    private double biasWeight;
+
     public Instances data;
-    public double learningRate;
-    public double momentum;
-    public double biasWeight;
-    public Map<String, List<Integer>> neuronType;
-    public int numOfHiddenNeuron;
-    public int numOfOutputNeuron;
-    public Map<Integer, Neuron> neurons;
-    public Map<Integer, Map<Integer, Double[]>> weights;
-    public Map<String, Double> classValue;
+    private Map<String, List<Integer>> neuronType;
+    private Map<Integer, Neuron> neurons;
+    private Map<Integer, Map<Integer, Double[]>> weights;
 
     public BackPropagation(){
         learningRate = 0.1;
@@ -34,8 +36,31 @@ public class BackPropagation extends Classifier {
 
         neurons = new HashMap<>();
         weights = new HashMap<>();
-        classValue = new HashMap<>();
         neuronType = new HashMap<>();
+    }
+
+    public double getMomentum() {
+        return momentum;
+    }
+
+    public void setMomentum(double momentum) {
+        this.momentum = momentum;
+    }
+
+    public double getLearningRate() {
+        return learningRate;
+    }
+
+    public void setLearningRate(double learningRate) {
+        this.learningRate = learningRate;
+    }
+
+    public int getNumEpoch() {
+        return numEpoch;
+    }
+
+    public void setNumEpoch(int numEpoch) {
+        this.numEpoch = numEpoch;
     }
 
     public void setBiasValue(double biasValue) {
@@ -44,6 +69,8 @@ public class BackPropagation extends Classifier {
             temp.put(i, biasValue);
         }
         neurons.put(0, new Neuron(temp, 0.0));
+
+        setBiasWeight(0.1);
     }
 
     public void setBiasWeight(double biasWeight) {
@@ -144,7 +171,7 @@ public class BackPropagation extends Classifier {
         }
     }
 
-    public void readInput(String filename) {
+    public Instances readInput(String filename) {
         FileReader file = null;
         try {
             file = new FileReader(filename);
@@ -166,6 +193,8 @@ public class BackPropagation extends Classifier {
                 Logger.getLogger(BackPropagation.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
+
+        return data;
     }
 
     public Map<Integer, Double[]> findNodeBefore(int node) {
@@ -245,10 +274,10 @@ public class BackPropagation extends Classifier {
     public void computeOutputNeuronError(int instanceNo) {
         List<Integer> outNeuron = neuronType.get("output");
         Neuron n;
-        for (int i = 0; i < outNeuron.size(); i++) {
-            n = neurons.get(outNeuron.get(i));
+        for (Integer anOutNeuron : outNeuron) {
+            n = neurons.get(anOutNeuron);
             n.error = n.input.get(0) * (1 - n.input.get(0)) * (n.targetValue.get(instanceNo) - n.input.get(0));
-            neurons.put(outNeuron.get(i), n);
+            neurons.put(anOutNeuron, n);
         }
     }
 
@@ -258,18 +287,18 @@ public class BackPropagation extends Classifier {
         double temp;
 
         Neuron n;
-        for (int i = 0; i < hiddenNeuron.size(); i++) {
-            n = neurons.get(hiddenNeuron.get(i));
+        for (Integer aHiddenNeuron : hiddenNeuron) {
+            n = neurons.get(aHiddenNeuron);
             n.error = n.input.get(instanceNo) * (1 - n.input.get(instanceNo));
 
-            nodeAfter = findNodeAfter(hiddenNeuron.get(i));
+            nodeAfter = findNodeAfter(aHiddenNeuron);
             temp = 0;
             for (Map.Entry<Integer, Double[]> outNode : nodeAfter.entrySet()) {
-                temp += (neurons.get(outNode.getKey()).error * findWeight(hiddenNeuron.get(i), outNode.getKey()));
+                temp += (neurons.get(outNode.getKey()).error * findWeight(aHiddenNeuron, outNode.getKey()));
             }
             n.error *= temp;
 
-            neurons.put(hiddenNeuron.get(i), n);
+            neurons.put(aHiddenNeuron, n);
         }
     }
 
@@ -294,8 +323,65 @@ public class BackPropagation extends Classifier {
         }
     }
 
+    public void printNeuron() {
+        System.out.println("Neuron - Input Value (Activation) - Target - Net Value - Error");
+        for (Map.Entry<Integer, Neuron> neuron : neurons.entrySet()) {
+            System.out.print(neuron.getKey() + " ");
+            System.out.print(neuron.getValue().input);
+            System.out.print(" "+ neuron.getValue().targetValue + " ");
+            System.out.print(" [" + neuron.getValue().outValue + "] ");
+            System.out.println(" [" + neuron.getValue().error + "] ");
+        }
+    }
+
+    public void printWeight() {
+        System.out.println();
+        System.out.println("Connection - New Weight - Old Weight - Delta Weight");
+        for (Map.Entry<Integer, Map<Integer, Double[]>> weight: weights.entrySet()) {
+            for (Map.Entry<Integer, Double[]> realWeight : weight.getValue().entrySet()) {
+                System.out.print(realWeight.getKey() + "-" + weight.getKey() + " ");
+                System.out.print(realWeight.getValue()[0] + " ");
+                System.out.print(realWeight.getValue()[1] + " ");
+                System.out.println(realWeight.getValue()[2] + " ");
+            }
+        }
+    }
+
     @Override
     public void buildClassifier(Instances instances) throws Exception {
+        instances = new Instances(instances);
+        setNumNeuron(instances.numClasses(), false); //output
+        setNeuronConnectivity();
 
+        List<Integer> hidden = neuronType.get("hidden");
+        List<Integer> output = neuronType.get("output");
+
+        for (int epoch = 0; epoch < numEpoch; epoch++) {
+            for (int i = 0; i < instances.numInstances(); i++) {
+                setInstanceTarget(i);
+
+                for (Integer aHidden : hidden) {
+                    computeOutputValue(aHidden, i);
+                }
+                for (Integer anOutput : output) {
+                    computeOutputValue(anOutput, i);
+                }
+
+                computeOutputNeuronError(i);
+                computeHiddenNeuronError(i);
+
+                updateWeights(i);
+
+                for (Integer aHidden : hidden) {
+                    computeOutputValue(aHidden, i);
+                }
+                for (Integer anOutput : output) {
+                    computeOutputValue(anOutput, i);
+                }
+
+                printNeuron();
+                printWeight();
+            }
+        }
     }
 }
