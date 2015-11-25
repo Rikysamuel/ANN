@@ -100,8 +100,7 @@ public class DeltaRuleBatch extends DeltaRule {
 
     @Override
     public double computeEpochError(Double[] lastDeltaWeightThisEpoch) {
-        // Proses pasca 1 EPOCH
-        // Hitung Delta Weight final untuk epoch ini
+        // Hitung Delta Weight final untuk epoch ini (jumlah delta weight per instance)
         for (int k=0;k<numAttributes;k++) {
             for (int j=0;j<numData;j++) {
                 finalDeltaWeight[k] += lastDeltaWeightThisEpoch[k];
@@ -109,15 +108,7 @@ public class DeltaRuleBatch extends DeltaRule {
         }
         // Hitung ulang output dan error final untuk query ini
         for (int j=0;j<numData;j++) {
-            // Hitung final output per instance untuk epoch ini
-            double outputFinalThisInstance;
-            double sumNet = 0.0;
-            for (int k=0;k<numAttributes;k++) {
-                sumNet += inputValue.get(j)[k] * finalDeltaWeight[k];
-            }
-            outputFinalThisInstance = computeSigmoidFunction(sumNet);
-            output.add(outputFinalThisInstance);
-            // Hitung final error per instance untuk epoch ini
+            output.add(computeOutputInstance(inputValue.get(j),finalDeltaWeight));
             finalErrorToTarget.add(j,target.get(j)-output.get(j));
         }
         // Hitung MSE untuk epoch ini
@@ -165,8 +156,6 @@ public class DeltaRuleBatch extends DeltaRule {
             // List sementara yang menampung error,output,deltaweight,newWeight
             List<Double> tempOutputThisEpoch = new ArrayList<>();
             List<Double> tempErrorThisEpoch = new ArrayList<>();
-            List<Double[]> tempDeltaWeightThisEpoch = new ArrayList<>();
-            List<Double[]> tempNewWeightThisEpoch = new ArrayList<>();
             // Proses 1 EPOCH
             for (int j=0;j<numData;j++) {
                 // Hitung output data sementara
@@ -177,13 +166,13 @@ public class DeltaRuleBatch extends DeltaRule {
                 tempErrorThisEpoch.add(tempErrorThisInstance);
                 // Hitung deltaweight instance ini di epoch ini
                 Double[] deltaWeightThisInstance = computeDeltaWeightInstance(inputValue.get(j),tempErrorThisInstance);
-                tempDeltaWeightThisEpoch.add(deltaWeightThisInstance);
+                deltaWeight.add(deltaWeightThisInstance);
                 // Hitung newweight instance ini di epoch ini
                 Double[] newWeightThisInstance = computeNewWeightInstance(inputWeight.get(j),deltaWeightThisInstance);
-                tempNewWeightThisEpoch.add(newWeightThisInstance);
+                newWeight.add(newWeightThisInstance);
             }
             // Hitung MSE Error epoch ini
-            double mseValue = computeEpochError(tempDeltaWeightThisEpoch.get(numData-1));
+            double mseValue = computeEpochError(deltaWeight.get(numData-1));
             if (mseValue < threshold) {
                 isConvergent = true;
             }

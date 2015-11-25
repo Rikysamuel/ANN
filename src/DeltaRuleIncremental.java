@@ -36,8 +36,23 @@ public class DeltaRuleIncremental extends DeltaRule {
     }
 
     @Override
-    public double computeEpochError() {
+    public double computeEpochError(Double[] lastDeltaWeightThisEpoch) {
         return 0;
+    }
+
+    @Override
+    public double computeOutputInstance(Double[] inputValueThisInstance, Double[] inputWeightThisInstance) {
+        return 0;
+    }
+
+    @Override
+    public Double[] computeDeltaWeightInstance(Double[] inputValueThisInstance, double errorThisInstance) {
+        return new Double[0];
+    }
+
+    @Override
+    public Double[] computeNewWeightInstance(Double[] inputWeightThisInstance, Double[] deltaWeightThisInstance) {
+        return new Double[0];
     }
 
     @Override
