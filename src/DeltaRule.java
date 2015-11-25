@@ -1,5 +1,7 @@
 import weka.classifiers.Classifier;
+import weka.core.Instances;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -33,6 +35,13 @@ public abstract class DeltaRule extends Classifier {
         learningRate = 0.1;
         maxEpoch = 5;
         threshold = 0.0001;
+        inputValue = new ArrayList<>();
+        inputWeight = new ArrayList<>();
+        target = new ArrayList<>();
+        output = new ArrayList<>();
+        errorToTarget = new ArrayList<>();
+        deltaWeight = new ArrayList<>();
+        newWeight = new ArrayList<>();
     }
 
     /* constructor */
@@ -40,7 +49,23 @@ public abstract class DeltaRule extends Classifier {
         this.learningRate = learningRate;
         this.maxEpoch = maxEpoch;
         this.threshold = threshold;
+        inputValue = new ArrayList<>();
+        inputWeight = new ArrayList<>();
+        target = new ArrayList<>();
+        output = new ArrayList<>();
+        errorToTarget = new ArrayList<>();
+        deltaWeight = new ArrayList<>();
+        newWeight = new ArrayList<>();
     }
+
+    /* Load instances from arff file */
+    public abstract Instances readInput(String filename);
+
+    /* Convert instances data into input value */
+    public abstract void loadInstancesIntoInputValue(Instances instances);
+
+    /* Randomize or generalize weight each input */
+    public abstract void loadOrGenerateInputWeight(boolean isRandom, Double[] weight);
 
     /* compute the delta weight of a weight */
     public abstract double computeDeltaWeight();
