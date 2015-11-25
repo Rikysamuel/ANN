@@ -31,11 +31,6 @@ public class DeltaRuleIncremental extends DeltaRule {
     }
 
     @Override
-    public double computeDeltaWeight() {
-        return 0;
-    }
-
-    @Override
     public double computeEpochError(Double[] lastDeltaWeightThisEpoch) {
         return 0;
     }

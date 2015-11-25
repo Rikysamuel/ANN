@@ -27,12 +27,8 @@ public abstract class DeltaRule extends Classifier {
 
     /* the difference between target and output (t-o) */
     List<Double> errorToTarget;
-    /* error target to output final (each epoch) */
-    List<Double> finalErrorToTarget;
     /* the delta weight */
     List<Double[]> deltaWeight;
-    /* the final delta weight per epoch */
-    Double[] finalDeltaWeight;
     /* the new weight */
     List<Double[]> newWeight;
 
@@ -60,7 +56,6 @@ public abstract class DeltaRule extends Classifier {
         errorToTarget = new ArrayList<>();
         deltaWeight = new ArrayList<>();
         newWeight = new ArrayList<>();
-        finalErrorToTarget = new ArrayList<>();
     }
 
     /* constructor */
@@ -77,7 +72,6 @@ public abstract class DeltaRule extends Classifier {
         errorToTarget = new ArrayList<>();
         deltaWeight = new ArrayList<>();
         newWeight = new ArrayList<>();
-        finalErrorToTarget = new ArrayList<>();
     }
 
     /* Load instances from arff file */
@@ -92,20 +86,14 @@ public abstract class DeltaRule extends Classifier {
     /* Load target value from arff file */
     public abstract void loadTargetFromInstances(Instances instances);
 
-    /* Initialize delta weight with zero */
-    public abstract void initializeFinalDeltaWeight();
-
-    /* compute the delta weight of a weight */
-    public abstract double computeDeltaWeight();
-
     /* compute the error of Epoch */
-    public abstract double computeEpochError(Double[] lastDeltaWeightThisEpoch);
+    public abstract double computeEpochError(List<Double> finalErrorThisEpoch);
 
     /* compute output of one instance using sigmoid activation function */
     public abstract double computeOutputInstance(Double[] inputValueThisInstance, Double[] inputWeightThisInstance);
 
     /* compute delta weight of one instance */
-    public abstract Double[] computeDeltaWeightInstance(Double[] inputValueThisInstance, double errorThisInstance);
+    public abstract Double[] computeDeltaWeightInstance(Double[] inputValueThisInstance, double errorThisInstance, int indexData);
 
     /* compute new weight yields for one instance */
     public abstract Double[] computeNewWeightInstance(Double[] inputWeightThisInstance, Double[] deltaWeightThisInstance);
