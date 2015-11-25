@@ -26,6 +26,11 @@ public class DeltaRuleIncremental extends DeltaRule {
     }
 
     @Override
+    public void initializeFinalDeltaWeight() {
+
+    }
+
+    @Override
     public double computeDeltaWeight() {
         return 0;
     }

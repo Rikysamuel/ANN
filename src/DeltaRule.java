@@ -27,6 +27,8 @@ public abstract class DeltaRule extends Classifier {
 
     /* the difference between target and output (t-o) */
     List<Double> errorToTarget;
+    /* error target to output final (each epoch) */
+    List<Double> finalErrorToTarget;
     /* the delta weight */
     List<Double[]> deltaWeight;
     /* the final delta weight per epoch */
@@ -41,12 +43,16 @@ public abstract class DeltaRule extends Classifier {
     /* number of attributes */
     int numAttributes;
 
+    /* check if iteration is convergent or not */
+    boolean isConvergent;
+
     /* default constructor */
     public DeltaRule() {
         learningRate = 0.1;
         maxEpoch = 5;
         threshold = 0.0001;
         momentum = 0.2;
+        isConvergent = false;
         inputValue = new ArrayList<>();
         inputWeight = new ArrayList<>();
         target = new ArrayList<>();
@@ -54,6 +60,7 @@ public abstract class DeltaRule extends Classifier {
         errorToTarget = new ArrayList<>();
         deltaWeight = new ArrayList<>();
         newWeight = new ArrayList<>();
+        finalErrorToTarget = new ArrayList<>();
     }
 
     /* constructor */
@@ -62,6 +69,7 @@ public abstract class DeltaRule extends Classifier {
         this.maxEpoch = maxEpoch;
         this.threshold = threshold;
         this.momentum = momentum;
+        isConvergent = false;
         inputValue = new ArrayList<>();
         inputWeight = new ArrayList<>();
         target = new ArrayList<>();
@@ -69,6 +77,7 @@ public abstract class DeltaRule extends Classifier {
         errorToTarget = new ArrayList<>();
         deltaWeight = new ArrayList<>();
         newWeight = new ArrayList<>();
+        finalErrorToTarget = new ArrayList<>();
     }
 
     /* Load instances from arff file */

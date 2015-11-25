@@ -60,18 +60,20 @@ public class DeltaRuleBatch extends DeltaRule {
 
     @Override
     public void loadOrGenerateInputWeight(boolean isRandom) {
-        Double newWeight[] = new Double[numAttributes];
-        if (isRandom) {
-            Random random = new Random();
-            for (int i=0;i<numAttributes;i++) {
-                newWeight[i] = (double) random.nextInt(1);
+        for (int j=0;j<numData;j++) {
+            Double newWeight[] = new Double[numAttributes];
+            if (isRandom) {
+                Random random = new Random();
+                for (int i = 0; i < numAttributes; i++) {
+                    newWeight[i] = (double) random.nextInt(1);
+                }
+            } else {
+                for (int i = 0; i < numAttributes; i++) {
+                    newWeight[i] = 1.0;
+                }
             }
-        } else {
-            for (int i=0;i<numAttributes;i++) {
-                newWeight[i] = 1.0;
-            }
+            inputWeight.add(newWeight);
         }
-        inputWeight.add(newWeight);
     }
 
     @Override
@@ -119,7 +121,7 @@ public class DeltaRuleBatch extends DeltaRule {
                 Double[] inputValueThisInstance = inputValue.get(j);
                 Double[] inputWeightThisInstance = inputWeight.get(j);
                 // Hitung output data sementara
-                double tempOutputThisInstance = 0.0;
+                double tempOutputThisInstance;
                 double sumNet = 0.0;
                 for (int k=0;k<numAttributes;k++) {
                     sumNet += inputValueThisInstance[k] * inputWeightThisInstance[k];
@@ -144,10 +146,32 @@ public class DeltaRuleBatch extends DeltaRule {
                 tempNewWeightThisEpoch.add(newWeightThisInstance);
             }
             // Proses pasca 1 EPOCH
-            for (int j=0;j<numData;j++) {
-                for (int k=0;k<numAttributes;k++) {
-                    
+            // Hitung Delta Weight final untuk epoch ini
+            for (int k=0;k<numAttributes;k++) {
+                for (int j=0;j<numData;j++) {
+                    finalDeltaWeight[k] += tempDeltaWeightThisEpoch.get(j)[k];
                 }
+            }
+            // Hitung ulang output dan error final untuk query ini
+            for (int j=0;j<numData;j++) {
+                // Hitung final output per instance untuk epoch ini
+                double outputFinalThisInstance;
+                double sumNet = 0.0;
+                for (int k=0;k<numAttributes;k++) {
+                    sumNet += inputValue.get(j)[k] * finalDeltaWeight[k];
+                }
+                outputFinalThisInstance = computeSigmoidFunction(sumNet);
+                output.add(outputFinalThisInstance);
+                // Hitung final error per instance untuk epoch ini
+                finalErrorToTarget.add(j,target.get(j)-output.get(j));
+            }
+            // Hitung MSE untuk epoch ini
+            double mseValue = 0.0;
+            for (int j=0;j<numData;j++) {
+                mseValue += 0.5 * Math.pow(finalErrorToTarget.get(j), 2);
+            }
+            if (mseValue < threshold) {
+                isConvergent = true;
             }
         }
     }
