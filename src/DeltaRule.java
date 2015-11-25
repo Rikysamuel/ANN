@@ -30,6 +30,13 @@ public abstract class DeltaRule extends Classifier {
     /* the new weight */
     List<Double[]> newWeight;
 
+    /* dataset input weka */
+    Instances inputDataSet;
+    /* number of data */
+    int numData;
+    /* number of attributes */
+    int numAttributes;
+
     /* default constructor */
     public DeltaRule() {
         learningRate = 0.1;
@@ -65,7 +72,10 @@ public abstract class DeltaRule extends Classifier {
     public abstract void loadInstancesIntoInputValue(Instances instances);
 
     /* Randomize or generalize weight each input */
-    public abstract void loadOrGenerateInputWeight(boolean isRandom, Double[] weight);
+    public abstract void loadOrGenerateInputWeight(boolean isRandom);
+
+    /* Load target value from arff file */
+    public abstract void loadTargetFromInstances(Instances instances);
 
     /* compute the delta weight of a weight */
     public abstract double computeDeltaWeight();

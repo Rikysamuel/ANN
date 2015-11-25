@@ -5,6 +5,7 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.List;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -12,8 +13,6 @@ import java.util.logging.Logger;
  * Created by rikysamuel on 11/4/2015.
  */
 public class DeltaRuleBatch extends DeltaRule {
-    /* dataset input weka */
-    Instances inputDataSet;
 
     /* Default Konstruktor */
     public DeltaRuleBatch() {
@@ -42,17 +41,40 @@ public class DeltaRuleBatch extends DeltaRule {
 
     @Override
     public void loadInstancesIntoInputValue(Instances instances) {
-        int numInstance = instances.numInstances();
-        for (int i=0;i<numInstance;i++) {
+        numData = instances.numInstances();
+        numAttributes = instances.numAttributes();
+        for (int i=0;i<numData;i++) {
             Instance thisInstance = instances.instance(i);
-            Double[] listInput = new Double[thisInstance.numAttributes()];
-            
+            Double[] listInput = new Double[numAttributes];
+            for (int j=0;j<numAttributes;j++) {
+                listInput[j] = thisInstance.value(j);
+            }
+            inputValue.add(listInput);
         }
     }
 
     @Override
-    public void loadOrGenerateInputWeight(boolean isRandom, Double[] weight) {
+    public void loadOrGenerateInputWeight(boolean isRandom) {
+        Double newWeight[] = new Double[numAttributes];
+        if (isRandom) {
+            Random random = new Random();
+            for (int i=0;i<numAttributes;i++) {
+                newWeight[i] = (double) random.nextInt(1);
+            }
+        } else {
+            for (int i=0;i<numAttributes;i++) {
+                newWeight[i] = 1.0;
+            }
+        }
+        inputWeight.add(newWeight);
+    }
 
+    @Override
+    public void loadTargetFromInstances(Instances instances) {
+        int numInstance = instances.numInstances();
+        for (int i=0;i<numInstance;i++) {
+            target.add(instances.instance(i).classValue());
+        }
     }
 
     @Override
@@ -68,6 +90,21 @@ public class DeltaRuleBatch extends DeltaRule {
 
     @Override
     public void buildClassifier(Instances instances) throws Exception {
+        loadInstancesIntoInputValue(instances);
+        loadOrGenerateInputWeight(true);
+        loadTargetFromInstances(instances);
+        for (int i=0;i<maxEpoch;i++) {
+            
+        }
+    }
 
+    public static void main(String[] arg) {
+        DeltaRule deltaBatchClassifier = new DeltaRuleBatch(0.1,10,0.00001);
+        Instances instances = deltaBatchClassifier.readInput("D:\\weka-3-6\\data\\iris.arff");
+        try {
+            deltaBatchClassifier.buildClassifier(instances);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 }
