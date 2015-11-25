@@ -6,6 +6,26 @@ import weka.core.Instances;
 public class DeltaRuleIncremental extends DeltaRule {
 
     @Override
+    public Instances readInput(String filename) {
+        return null;
+    }
+
+    @Override
+    public void loadInstancesIntoInputValue(Instances instances) {
+
+    }
+
+    @Override
+    public void loadOrGenerateInputWeight(boolean isRandom) {
+
+    }
+
+    @Override
+    public void loadTargetFromInstances(Instances instances) {
+
+    }
+
+    @Override
     public double computeDeltaWeight() {
         return 0;
     }

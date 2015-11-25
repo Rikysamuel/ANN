@@ -14,6 +14,8 @@ public abstract class DeltaRule extends Classifier {
     int maxEpoch;
     /* threshold error */
     Double threshold;
+    /* momentum */
+    Double momentum;
     /* vector of input value for neuron */
     List<Double[]> inputValue;
     /* vector of input weight for neuron */
@@ -27,6 +29,8 @@ public abstract class DeltaRule extends Classifier {
     List<Double> errorToTarget;
     /* the delta weight */
     List<Double[]> deltaWeight;
+    /* the final delta weight per epoch */
+    Double[] finalDeltaWeight;
     /* the new weight */
     List<Double[]> newWeight;
 
@@ -42,6 +46,7 @@ public abstract class DeltaRule extends Classifier {
         learningRate = 0.1;
         maxEpoch = 5;
         threshold = 0.0001;
+        momentum = 0.2;
         inputValue = new ArrayList<>();
         inputWeight = new ArrayList<>();
         target = new ArrayList<>();
@@ -52,10 +57,11 @@ public abstract class DeltaRule extends Classifier {
     }
 
     /* constructor */
-    public DeltaRule(Double learningRate,int maxEpoch,Double threshold) {
+    public DeltaRule(Double learningRate,int maxEpoch,Double threshold,Double momentum) {
         this.learningRate = learningRate;
         this.maxEpoch = maxEpoch;
         this.threshold = threshold;
+        this.momentum = momentum;
         inputValue = new ArrayList<>();
         inputWeight = new ArrayList<>();
         target = new ArrayList<>();
@@ -76,6 +82,9 @@ public abstract class DeltaRule extends Classifier {
 
     /* Load target value from arff file */
     public abstract void loadTargetFromInstances(Instances instances);
+
+    /* Initialize delta weight with zero */
+    public abstract void initializeFinalDeltaWeight();
 
     /* compute the delta weight of a weight */
     public abstract double computeDeltaWeight();

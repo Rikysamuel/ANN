@@ -4,6 +4,7 @@ import weka.core.Instances;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.logging.Level;
@@ -20,8 +21,12 @@ public class DeltaRuleBatch extends DeltaRule {
     }
 
     /* Konstruktor */
-    public DeltaRuleBatch(Double learningRate,int maxEpoch,Double threshold) {
-        super(learningRate,maxEpoch,threshold);
+    public DeltaRuleBatch(Double learningRate,int maxEpoch,Double threshold,Double momentum) {
+        super(learningRate,maxEpoch,threshold,momentum);
+    }
+
+    public static Double computeSigmoidFunction(double sumNetFunction) {
+        return (1.0 / (1.0 + Math.exp(-1.0 * sumNetFunction)));
     }
 
     @Override
@@ -78,6 +83,14 @@ public class DeltaRuleBatch extends DeltaRule {
     }
 
     @Override
+    public void initializeFinalDeltaWeight() {
+        finalDeltaWeight = new Double[numAttributes];
+        for (int i=0;i<numAttributes;i++) {
+            finalDeltaWeight[i] = 0.0;
+        }
+    }
+
+    @Override
     public double computeDeltaWeight() {
 
         return 0;
@@ -93,13 +106,55 @@ public class DeltaRuleBatch extends DeltaRule {
         loadInstancesIntoInputValue(instances);
         loadOrGenerateInputWeight(true);
         loadTargetFromInstances(instances);
+        initializeFinalDeltaWeight();
         for (int i=0;i<maxEpoch;i++) {
-            
+            // List sementara yang menampung error,output,deltaweight,newWeight
+            List<Double> tempOutputThisEpoch = new ArrayList<>();
+            List<Double> tempErrorThisEpoch = new ArrayList<>();
+            List<Double[]> tempDeltaWeightThisEpoch = new ArrayList<>();
+            List<Double[]> tempNewWeightThisEpoch = new ArrayList<>();
+            // Proses 1 EPOCH
+            for (int j=0;j<numData;j++) {
+                // Dapatkan list input dan weight di instance dan epoch ini
+                Double[] inputValueThisInstance = inputValue.get(j);
+                Double[] inputWeightThisInstance = inputWeight.get(j);
+                // Hitung output data sementara
+                double tempOutputThisInstance = 0.0;
+                double sumNet = 0.0;
+                for (int k=0;k<numAttributes;k++) {
+                    sumNet += inputValueThisInstance[k] * inputWeightThisInstance[k];
+                }
+                tempOutputThisInstance = computeSigmoidFunction(sumNet);
+                tempOutputThisEpoch.add(tempOutputThisInstance);
+                // Hitung (target - output) simpan di list sementara
+                double tempErrorThisInstance;
+                tempErrorThisInstance = target.get(j) - tempOutputThisInstance;
+                tempErrorThisEpoch.add(tempErrorThisInstance);
+                // Hitung deltaweight instance ini di epoch ini
+                Double[] deltaWeightThisInstance = new Double[numAttributes];
+                for (int k=0;k<numAttributes;k++) {
+                    deltaWeightThisInstance[k] = learningRate * inputValue.get(j)[k] * tempErrorThisInstance + momentum * finalDeltaWeight[k];
+                }
+                tempDeltaWeightThisEpoch.add(deltaWeightThisInstance);
+                // Hitung newweight instance ini di epoch ini
+                Double[] newWeightThisInstance = new Double[numAttributes];
+                for (int k=0;k<numAttributes;k++) {
+                    newWeightThisInstance[k] = deltaWeightThisInstance[k] + inputWeight.get(j)[k];
+                }
+                tempNewWeightThisEpoch.add(newWeightThisInstance);
+            }
+            // Proses pasca 1 EPOCH
+            for (int j=0;j<numData;j++) {
+                for (int k=0;k<numAttributes;k++) {
+                    
+                }
+            }
         }
     }
 
+
     public static void main(String[] arg) {
-        DeltaRule deltaBatchClassifier = new DeltaRuleBatch(0.1,10,0.00001);
+        DeltaRule deltaBatchClassifier = new DeltaRuleBatch(0.1,10,0.00001,0.1);
         Instances instances = deltaBatchClassifier.readInput("D:\\weka-3-6\\data\\iris.arff");
         try {
             deltaBatchClassifier.buildClassifier(instances);

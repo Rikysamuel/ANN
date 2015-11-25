@@ -10,7 +10,7 @@ import java.util.Map;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        BackPropagation bp = new BackPropagation();
+        Backpropagation bp = new Backpropagation();
         Instances data = bp.readInput("data/simple.weather.arff");
 
         /* config */
