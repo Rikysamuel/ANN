@@ -99,5 +99,14 @@ public abstract class DeltaRule extends Classifier {
     public abstract double computeDeltaWeight();
 
     /* compute the error of Epoch */
-    public abstract double computeEpochError();
+    public abstract double computeEpochError(Double[] lastDeltaWeightThisEpoch);
+
+    /* compute output of one instance using sigmoid activation function */
+    public abstract double computeOutputInstance(Double[] inputValueThisInstance, Double[] inputWeightThisInstance);
+
+    /* compute delta weight of one instance */
+    public abstract Double[] computeDeltaWeightInstance(Double[] inputValueThisInstance, double errorThisInstance);
+
+    /* compute new weight yields for one instance */
+    public abstract Double[] computeNewWeightInstance(Double[] inputWeightThisInstance, Double[] deltaWeightThisInstance);
 }
