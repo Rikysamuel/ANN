@@ -128,18 +128,24 @@ public class DeltaRuleBatch extends DeltaRule {
     public Double[] computeSumFinalDeltaWeight() {
         Double[] sumFinalDeltaWeight = new Double[numAttributes];
         for (int k=0;k<numAttributes;k++) {
+            Double sumDeltaWeightThisAttribute = 0.0;
             for (int j=0;j<numData;j++) {
-                sumFinalDeltaWeight[k] += deltaWeight.get(j)[k];
+                sumDeltaWeightThisAttribute += deltaWeight.get(j)[k];
             }
+            sumFinalDeltaWeight[k] = sumDeltaWeightThisAttribute;
         }
         return sumFinalDeltaWeight;
     }
 
     public void initializeInputWeightThisEpoch() {
-        for (int i=0;i<numData;i++) {
-            for (int j = 0; j < numAttributes; j++) {
-                inputWeight.get(i)[j] = finalNewWeight[j];
+        for (int k=0;k<numData;k++) {
+            Double[] inputWeightThisEpoch = new Double[numAttributes];
+            for (int i = 0; i < numData; i++) {
+                for (int j = 0; j < numAttributes; j++) {
+                    inputWeightThisEpoch[j] = finalNewWeight[j];
+                }
             }
+            inputWeight.add(inputWeightThisEpoch);
         }
     }
 
@@ -196,6 +202,9 @@ public class DeltaRuleBatch extends DeltaRule {
             // Reset isi dari delta weight dan new weight
             deltaWeight.clear();
             newWeight.clear();
+            inputWeight.clear();
+            output.clear();
+            errorToTarget.clear();
             // Masukkan input weight baru dari epoch sebelumnya
             initializeInputWeightThisEpoch();
             // Proses 1 EPOCH
@@ -213,7 +222,7 @@ public class DeltaRuleBatch extends DeltaRule {
             }
             // Calculate sum delta weight this epoch
             finalDeltaWeight =  computeSumFinalDeltaWeight();
-            listFinalDeltaWeight.add(finalDeltaWeight);
+            listFinalDeltaWeight.add(computeSumFinalDeltaWeight());
             // Calculate final output for each instance
             finalNewWeight = computeNewWeightInstance(inputWeight.get(numData-1),finalDeltaWeight);
             listFinalNewWeight.add(finalNewWeight);
@@ -233,12 +242,7 @@ public class DeltaRuleBatch extends DeltaRule {
 
 
     public static void main(String[] arg) {
-        DeltaRule deltaBatchClassifier = new DeltaRuleBatch();
-        Util.loadARFF("D:\\weka-3-6\\data\\iris.arff");
-        try {
-            deltaBatchClassifier.buildClassifier(Util.getData());
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        Util.loadARFF("D:\\weka-3-6\\data\\weather.numeric.arff");
+        Util.buildModel("batch");
     }
 }

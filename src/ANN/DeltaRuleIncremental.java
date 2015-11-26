@@ -1,6 +1,7 @@
 package ANN;
 
 import Util.ActivationClass;
+import Util.Util;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
@@ -112,7 +113,7 @@ public class DeltaRuleIncremental extends DeltaRule {
                 newWeight[i] = 1.0;
             }
         }
-        inputWeight.add(1,newWeight);
+        inputWeight.add(0,newWeight);
     }
 
     @Override
@@ -166,9 +167,11 @@ public class DeltaRuleIncremental extends DeltaRule {
     }
 
     public void initializeInputWeightThisIteration(int indexData) {
+        Double[] inputWeightThisIteration = new Double[numAttributes];
         for (int j = 0; j < numAttributes; j++) {
-            inputWeight.get(indexData)[j] = finalNewWeight[j];
+            inputWeightThisIteration[j] = finalNewWeight[j];
         }
+        inputWeight.add(indexData,inputWeightThisIteration);
     }
 
     @Override
@@ -182,6 +185,9 @@ public class DeltaRuleIncremental extends DeltaRule {
             // Reset isi dari delta weight dan new weight
             deltaWeight.clear();
             newWeight.clear();
+            inputWeight.clear();
+            output.clear();
+            errorToTarget.clear();
             // Proses 1 EPOCH
             for (int j=0;j<numData;j++) {
                 // Inisialisasi input weight baru untuk iterasi ini
@@ -219,6 +225,7 @@ public class DeltaRuleIncremental extends DeltaRule {
     }
 
     public static void main(String[] arg) {
-
+        Util.loadARFF("D:\\weka-3-6\\data\\iris.arff");
+        Util.buildModel("incremental");
     }
 }
