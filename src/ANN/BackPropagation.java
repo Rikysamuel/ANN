@@ -1,6 +1,10 @@
+package ANN;
+
 import Util.ActivationClass;
 import Util.Neuron;
 import weka.classifiers.Classifier;
+import weka.core.Capabilities;
+import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.NominalToBinary;
@@ -23,6 +27,7 @@ public class Backpropagation extends Classifier {
     private double learningRate;
     private double momentum;
     private double biasWeight;
+    private double MSEThreshold;
 
     public Instances data;
     private Map<String, List<Integer>> neuronType;
@@ -64,13 +69,14 @@ public class Backpropagation extends Classifier {
     }
 
     public void setBiasValue(double biasValue) {
+        System.out.println(data);
         SortedMap<Integer, Double> temp = new TreeMap<>();
         for (int i = 0; i < data.numInstances(); i++) {
             temp.put(i, biasValue);
         }
-        neurons.put(0, new Neuron(temp, 0.0));
 
-        setBiasWeight(0.1);
+        System.out.println("asd: " + temp);
+        neurons.put(0, new Neuron(temp, 0.0));
     }
 
     public void setBiasWeight(double biasWeight) {
@@ -78,6 +84,7 @@ public class Backpropagation extends Classifier {
     }
 
     public void setNumOfInputNeuron() {
+        numOfOutputNeuron = data.numClasses();
         Map<Integer, SortedMap<Integer, Double>> attribData = parseData();
         int numOfInput = data.numAttributes();
         int counter = 1;
@@ -86,6 +93,7 @@ public class Backpropagation extends Classifier {
             neurons.put(counter-1, new Neuron(attribData.get(counter-1), 0));
             counter++;
         }
+
     }
 
     public void setNumNeuron(int numNeuron, boolean isHidden) {
@@ -180,7 +188,6 @@ public class Backpropagation extends Classifier {
             }
             // setting class attribute
             data.setClassIndex(data.numAttributes() - 1);
-            numOfOutputNeuron = data.numClasses();
         } catch (IOException ex) {
             Logger.getLogger(Backpropagation.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
@@ -307,15 +314,10 @@ public class Backpropagation extends Classifier {
         for (Map.Entry<Integer, Map<Integer, Double[]>> weight: weights.entrySet()) {
             for (Map.Entry<Integer, Double[]> realWeight : weight.getValue().entrySet()) {
                 tempDouble = new Double[3];
-//                System.out.println(weight.getKey() + " " + realWeight.getKey());
-//                System.out.println(neurons.get(realWeight.getKey()).input.get(instanceNo));
-//                System.out.println(neurons.get(weight.getKey()).error);
                 double d = realWeight.getValue()[0];
-//                System.out.println("old: " + d);
                 tempDouble[2] = learningRate *
                         neurons.get(realWeight.getKey()).input.get(instanceNo) *
                         neurons.get(weight.getKey()).error + (momentum * realWeight.getValue()[2]); // compute delta weight
-//                System.out.println("delta: " + tempDouble[2]);
                 tempDouble[1] = realWeight.getValue()[2]; // hold the old delta weight
                 tempDouble[0] = d + tempDouble[2];
                 realWeight.setValue(tempDouble);
@@ -347,6 +349,16 @@ public class Backpropagation extends Classifier {
         }
     }
 
+    public Capabilities getCapabilities() {
+        Capabilities result = super.getCapabilities();
+        result.disableAll();
+        result.enable(Capabilities.Capability.NOMINAL_ATTRIBUTES);
+        result.enable(Capabilities.Capability.NUMERIC_ATTRIBUTES);
+        result.enable(Capabilities.Capability.MISSING_VALUES);
+        result.enable(Capabilities.Capability.NOMINAL_CLASS);
+        return result;
+    }
+
     @Override
     public void buildClassifier(Instances instances) throws Exception {
         instances = new Instances(instances);
@@ -354,7 +366,9 @@ public class Backpropagation extends Classifier {
         setNeuronConnectivity();
 
         List<Integer> hidden = neuronType.get("hidden");
+        System.out.println(hidden);
         List<Integer> output = neuronType.get("output");
+        System.out.println(output);
 
         for (int epoch = 0; epoch < numEpoch; epoch++) {
             for (int i = 0; i < instances.numInstances(); i++) {
@@ -383,5 +397,32 @@ public class Backpropagation extends Classifier {
                 printWeight();
             }
         }
+    }
+
+    public double classifyInstance(Instance instance) {
+        List<Integer> hiddNeuron = neuronType.get("hidden");
+        List<Integer> outNeuron = neuronType.get("output");
+        Map<Integer, Double[]> neuronBefore;
+        double weight;
+
+
+
+        /*for (int i = 0; i < hiddNeuron.size(); i++) {
+
+            weight = 0;
+            neuronBefore = findNodeBefore(hiddNeuron.get(i));
+
+            for (int j = 0; j <= neuronBefore.size(); j++) {
+                weight += weights.get(hiddNeuron.get(i)).get(j)[0] * instance.value(j - 1);
+            }
+            neurons.get(hiddNeuron.get(i)).input = new TreeMap<>();
+            neurons.get(hiddNeuron.get(i)).input.put(hiddNeuron.get(i), weight);
+        }
+
+        for (int i = 0; i < outNeuron.size(); i++) {
+
+        }*/
+
+        return 0;
     }
 }

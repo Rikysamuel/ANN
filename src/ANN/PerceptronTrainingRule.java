@@ -1,9 +1,13 @@
+package ANN;
+
 import weka.core.Instances;
+
+import java.util.List;
 
 /**
  * Created by rikysamuel on 11/4/2015.
  */
-public class DeltaRuleIncremental extends DeltaRule {
+public class PerceptronTrainingRule extends DeltaRule{
 
     @Override
     public Instances readInput(String filename) {
@@ -26,12 +30,7 @@ public class DeltaRuleIncremental extends DeltaRule {
     }
 
     @Override
-    public void initializeFinalDeltaWeight() {
-
-    }
-
-    @Override
-    public double computeEpochError(Double[] lastDeltaWeightThisEpoch) {
+    public double computeEpochError(List<Double> finalErrorThisEpoch) {
         return 0;
     }
 
@@ -41,7 +40,7 @@ public class DeltaRuleIncremental extends DeltaRule {
     }
 
     @Override
-    public Double[] computeDeltaWeightInstance(Double[] inputValueThisInstance, double errorThisInstance) {
+    public Double[] computeDeltaWeightInstance(Double[] inputValueThisInstance, double errorThisInstance, int indexData) {
         return new Double[0];
     }
 
