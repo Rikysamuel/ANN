@@ -11,8 +11,8 @@ public class Main {
 //        Util.loadARFF("data/train.arff");
         Util.buildModel("mlp");
 
-        Util.loadARFF("data/test.weather.numeric.arff");
-        Instances test = Util.setNominalToBinary(Util.getData());
-        Util.FullSchema(test);
+//        Util.loadARFF("data/test.weather.numeric.arff");
+//        Instances test = Util.setNominalToBinary(Util.getData());
+        Util.FullSchema(Util.getData());
     }
 }

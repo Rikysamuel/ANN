@@ -119,12 +119,12 @@ public class Util {
                     bp.data = data;
                     bp.setNumOfInputNeuron();
                     bp.setBiasValue(1);
-                    bp.setBiasWeight(0);
-                    bp.setInitWeight(0);
+                    bp.setBiasWeight(0.1);
+                    bp.setInitWeight(0.1);
                     bp.setNumNeuron(2, true); //hidden
-                    bp.setMomentum(0);
+                    bp.setMomentum(0.1);
                     bp.setLearningRate(0.1);
-                    bp.setNumEpoch(10);
+                    bp.setNumEpoch(100);
 
                     classifier = bp;
                     break;

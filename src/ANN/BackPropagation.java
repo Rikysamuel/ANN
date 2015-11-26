@@ -420,7 +420,7 @@ public class BackPropagation extends Classifier {
                 }
             }
             neurons.get(outNeuron.get(i)).input = new TreeMap<>();
-            neurons.get(outNeuron.get(i)).input.put(0, weight);
+            neurons.get(outNeuron.get(i)).input.put(0, ActivationClass.sigmoid(weight));
         }
 
         for (Integer hid : hiddNeuron) {
@@ -435,6 +435,7 @@ public class BackPropagation extends Classifier {
             System.out.println(neurons.get(out).input.get(0));
         }
 
+        System.out.println(classIndex);
         return classMap.get(classIndex);
     }
 }
