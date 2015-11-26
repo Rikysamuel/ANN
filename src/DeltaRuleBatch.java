@@ -18,19 +18,27 @@ public class DeltaRuleBatch extends DeltaRule {
     private List<Double> finalErrorToTarget;
     /* the final delta weight per epoch */
     private Double[] finalDeltaWeight;
+    /* list final delta weight per epoch */
+    private List<Double[]> listFinalDeltaWeight;
     /* the final new weight per epoch */
     private Double[] finalNewWeight;
+    /* list final new weight per epoch */
+    private List<Double[]> listFinalNewWeight;
 
     /* Default Konstruktor */
     public DeltaRuleBatch() {
         super();
         finalErrorToTarget = new ArrayList<>();
+        listFinalDeltaWeight = new ArrayList<>();
+        listFinalNewWeight = new ArrayList<>();
     }
 
     /* Konstruktor */
     public DeltaRuleBatch(Double learningRate,int maxEpoch,Double threshold,Double momentum) {
         super(learningRate,maxEpoch,threshold,momentum);
         finalErrorToTarget = new ArrayList<>();
+        listFinalDeltaWeight = new ArrayList<>();
+        listFinalNewWeight = new ArrayList<>();
     }
 
     public Double computeSigmoidFunction(double sumNetFunction) {
@@ -174,6 +182,9 @@ public class DeltaRuleBatch extends DeltaRule {
         initializeFinalDeltaWeight();
         initializeFinalNewWeight();
         for (int i=0;i<maxEpoch;i++) {
+            // Reset isi dari delta weight dan new weight
+            deltaWeight.clear();
+            newWeight.clear();
             // Masukkan input weight baru dari epoch sebelumnya
             initializeInputWeightThisEpoch();
             // Proses 1 EPOCH
@@ -191,8 +202,10 @@ public class DeltaRuleBatch extends DeltaRule {
             }
             // Calculate sum delta weight this epoch
             finalDeltaWeight =  computeSumFinalDeltaWeight();
+            listFinalDeltaWeight.add(finalDeltaWeight);
             // Calculate final output for each instance
             finalNewWeight = computeNewWeightInstance(inputWeight.get(numData-1),finalDeltaWeight);
+            listFinalNewWeight.add(finalNewWeight);
             for (int j=0;j<numData;j++) {
                 Double outputFinalThisData = computeOutputInstance(inputValue.get(j),finalNewWeight);
                 output.add(j,outputFinalThisData);
@@ -200,6 +213,7 @@ public class DeltaRuleBatch extends DeltaRule {
             }
             // Hitung MSE Error epoch ini
             double mseValue = computeEpochError(finalErrorToTarget);
+            System.out.println("Error epoch " + (i+1) + " : " + mseValue);
             if (mseValue < threshold) {
                 isConvergent = true;
             }
