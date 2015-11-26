@@ -6,6 +6,8 @@ import weka.classifiers.Evaluation;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
 import weka.core.converters.CSVLoader;
+import weka.filters.Filter;
+import weka.filters.supervised.attribute.NominalToBinary;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -90,6 +92,19 @@ public class Util {
         return data.resample(new Random(seed));
     }
 
+    public static Instances setNominalToBinary(Instances instances) {
+        NominalToBinary ntb = new NominalToBinary();
+        Instances newInstances = null;
+        try {
+            ntb.setInputFormat(instances);
+            newInstances = new Instances(Filter.useFilter(instances, ntb));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return newInstances;
+    }
+
     /**
      * apply all filter to build the classifier
      * @param Classifier model
@@ -100,15 +115,16 @@ public class Util {
             switch (Classifier.toLowerCase()) {
                 case "mlp" :
                     Backpropagation bp = new Backpropagation();
+                    data = Util.setNominalToBinary(data);
                     bp.data = data;
-                    bp.setNominalToBinary();
                     bp.setNumOfInputNeuron();
                     bp.setBiasValue(1);
-                    bp.setBiasWeight(0.1);
+                    bp.setBiasWeight(0);
+                    bp.setInitWeight(0);
                     bp.setNumNeuron(2, true); //hidden
-                    bp.setMomentum(0.1);
+                    bp.setMomentum(0);
                     bp.setLearningRate(0.1);
-                    bp.setNumEpoch(4);
+                    bp.setNumEpoch(10);
 
                     classifier = bp;
                     break;
