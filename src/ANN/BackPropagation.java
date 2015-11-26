@@ -20,7 +20,7 @@ import java.util.logging.Logger;
  * Backpropagation Algorithm for ANN classifier
  * Created by rikysamuel on 11/4/2015.
  */
-public class BackPropagation extends Classifier {
+public class Backpropagation extends Classifier {
     private int numEpoch;
     private int numOfHiddenNeuron;
     private int numOfOutputNeuron;
@@ -34,7 +34,7 @@ public class BackPropagation extends Classifier {
     private Map<Integer, Neuron> neurons;
     private Map<Integer, Map<Integer, Double[]>> weights;
 
-    public BackPropagation(){
+    public Backpropagation(){
         learningRate = 0.1;
         momentum = 0.1;
         numOfHiddenNeuron = 2;
@@ -189,7 +189,7 @@ public class BackPropagation extends Classifier {
             // setting class attribute
             data.setClassIndex(data.numAttributes() - 1);
         } catch (IOException ex) {
-            Logger.getLogger(BackPropagation.class.getName()).log(Level.SEVERE, null, ex);
+            Logger.getLogger(Backpropagation.class.getName()).log(Level.SEVERE, null, ex);
         } finally {
             try {
                 if (file!=null) {
@@ -197,7 +197,7 @@ public class BackPropagation extends Classifier {
                 }
                 setNumOfInputNeuron();
             } catch (IOException ex) {
-                Logger.getLogger(BackPropagation.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(Backpropagation.class.getName()).log(Level.SEVERE, null, ex);
             }
         }
 
