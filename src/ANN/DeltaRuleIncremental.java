@@ -20,8 +20,6 @@ import java.util.logging.Logger;
  * Created by rikysamuel on 11/4/2015.
  */
 public class DeltaRuleIncremental extends DeltaRule {
-    /* error target to output final (each epoch) */
-    private List<Double> finalErrorToTarget;
     /* the final delta weight per epoch */
     private Double[] finalDeltaWeight;
     /* list final delta weight per epoch */
@@ -54,7 +52,6 @@ public class DeltaRuleIncremental extends DeltaRule {
     /* Default Constructor */
     public DeltaRuleIncremental() {
         super();
-        finalErrorToTarget = new ArrayList<>();
         listFinalDeltaWeight = new ArrayList<>();
         listFinalNewWeight = new ArrayList<>();
     }
@@ -110,7 +107,7 @@ public class DeltaRuleIncremental extends DeltaRule {
             }
         } else {
             for (int i = 0; i < numAttributes; i++) {
-                newWeight[i] = 1.0;
+                newWeight[i] = 0.0;
             }
         }
         inputWeight.add(0,newWeight);
@@ -178,7 +175,7 @@ public class DeltaRuleIncremental extends DeltaRule {
     public void buildClassifier(Instances instances) throws Exception {
         loadInstancesIntoInputValue(instances);
         loadTargetFromInstances(instances);
-        loadOrGenerateInputWeight(true);
+        loadOrGenerateInputWeight(false);
         initializeFinalDeltaWeight();
         initializeFinalNewWeight();
         for (int i=0;i<maxEpoch;i++) {
@@ -213,10 +210,10 @@ public class DeltaRuleIncremental extends DeltaRule {
             for (int j=0;j<numData;j++) {
                 Double outputFinalThisData = computeOutputInstance(inputValue.get(j),finalNewWeight);
                 output.add(j,outputFinalThisData);
-                finalErrorToTarget.add(j,target.get(j)-outputFinalThisData);
+                errorToTarget.add(j,target.get(j)-outputFinalThisData);
             }
             // Hitung MSE Error epoch ini
-            double mseValue = computeEpochError(finalErrorToTarget);
+            double mseValue = computeEpochError(errorToTarget);
             System.out.println("Error epoch " + (i+1) + " : " + mseValue);
             if (mseValue < threshold) {
                 isConvergent = true;
@@ -225,7 +222,7 @@ public class DeltaRuleIncremental extends DeltaRule {
     }
 
     public static void main(String[] arg) {
-        Util.loadARFF("D:\\weka-3-6\\data\\iris.arff");
+        Util.loadARFF("D:\\weka-3-6\\data\\delta_rule_1.arff");
         Util.buildModel("incremental");
     }
 }

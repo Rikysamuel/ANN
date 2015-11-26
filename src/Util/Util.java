@@ -118,7 +118,7 @@ public class Util {
                     batch.setNominalToBinary();
                     batch.setLearningRate(0.1);
                     batch.setMomentum(0.1);
-                    batch.setNumEpoch(4);
+                    batch.setNumEpoch(10);
                     batch.setThresholdError(0.001);
 
                     classifier = batch;
@@ -129,7 +129,7 @@ public class Util {
                     incremental.setNominalToBinary();
                     incremental.setLearningRate(0.1);
                     incremental.setMomentum(0.1);
-                    incremental.setNumEpoch(4);
+                    incremental.setNumEpoch(10);
                     incremental.setThresholdError(0.001);
 
                     classifier = incremental;
