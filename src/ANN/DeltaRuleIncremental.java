@@ -3,6 +3,8 @@ package ANN;
 import Util.ActivationClass;
 import weka.core.Instance;
 import weka.core.Instances;
+import weka.filters.Filter;
+import weka.filters.supervised.attribute.NominalToBinary;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
@@ -28,6 +30,27 @@ public class DeltaRuleIncremental extends DeltaRule {
     /* list final new weight per epoch */
     private List<Double[]> listFinalNewWeight;
 
+    public void setNumEpoch(int maxEpoch) {
+        super.maxEpoch = maxEpoch;
+    }
+
+    public void setLearningRate(double learningRate) {
+        super.learningRate = learningRate;
+    }
+
+    public void setMomentum(double momentum) {
+        super.momentum = momentum;
+    }
+
+    public void setThresholdError(double threshold) {
+        super.threshold = threshold;
+    }
+
+    public void setInputData(Instances inputData) {
+        super.inputDataSet = inputData;
+    }
+
+    /* Default Constructor */
     public DeltaRuleIncremental() {
         super();
         finalErrorToTarget = new ArrayList<>();
@@ -35,11 +58,14 @@ public class DeltaRuleIncremental extends DeltaRule {
         listFinalNewWeight = new ArrayList<>();
     }
 
-    public DeltaRuleIncremental(Double learningRate,int maxEpoch,Double threshold,Double momentum) {
-        super(learningRate,maxEpoch,threshold,momentum);
-        finalErrorToTarget = new ArrayList<>();
-        listFinalDeltaWeight = new ArrayList<>();
-        listFinalNewWeight = new ArrayList<>();
+    public void setNominalToBinary() {
+        NominalToBinary ntb = new NominalToBinary();
+        try {
+            ntb.setInputFormat(inputDataSet);
+            inputDataSet = new Instances(Filter.useFilter(inputDataSet, ntb));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -190,5 +216,9 @@ public class DeltaRuleIncremental extends DeltaRule {
                 isConvergent = true;
             }
         }
+    }
+
+    public static void main(String[] arg) {
+
     }
 }

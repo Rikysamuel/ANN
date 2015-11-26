@@ -1,9 +1,6 @@
 package Util;
 
-import ANN.BackPropagation;
-import ANN.DeltaRuleBatch;
-import ANN.DeltaRuleIncremental;
-import ANN.PerceptronTrainingRule;
+import ANN.*;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
@@ -114,6 +111,30 @@ public class Util {
                     bp.setNumEpoch(4);
 
                     classifier = bp;
+                    break;
+                case "batch" :
+                    DeltaRuleBatch batch = new DeltaRuleBatch();
+                    batch.setInputData(data);
+                    batch.setNominalToBinary();
+                    batch.setLearningRate(0.1);
+                    batch.setMomentum(0.1);
+                    batch.setNumEpoch(4);
+                    batch.setThresholdError(0.001);
+
+                    classifier = batch;
+                    break;
+                case "incremental" :
+                    DeltaRuleIncremental incremental = new DeltaRuleIncremental();
+                    incremental.setInputData(data);
+                    incremental.setNominalToBinary();
+                    incremental.setLearningRate(0.1);
+                    incremental.setMomentum(0.1);
+                    incremental.setNumEpoch(4);
+                    incremental.setThresholdError(0.001);
+
+                    classifier = incremental;
+                    break;
+                case "perceptron" :
                     break;
                 default :
                     break;
