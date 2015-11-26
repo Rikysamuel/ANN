@@ -136,10 +136,10 @@ public class Util {
                     bp.setBiasValue(1);
                     bp.setBiasWeight(0.1);
                     bp.setInitWeight(0.1);
-                    bp.setNumNeuron(2, true); //hidden
-                    bp.setMomentum(0.1);
-                    bp.setLearningRate(0.1);
-                    bp.setNumEpoch(1000);
+                    bp.setNumNeuron(5, true); //hidden
+                    bp.setMomentum(0.2);
+                    bp.setLearningRate(0.3);
+                    bp.setNumEpoch(5000);
 
                     classifier = bp;
                     break;
