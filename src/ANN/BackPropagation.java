@@ -370,14 +370,9 @@ public class BackPropagation extends Classifier {
                 }
             }
         }
-
-        printNeuron();
-        printWeight();
-        System.out.println(neuronType.get("hidden"));
     }
 
     public double classifyInstance(Instance instance) {
-        System.out.println(instance);
         List<Integer> hiddNeuron = neuronType.get("hidden");
         List<Integer> outNeuron = neuronType.get("output");
         List<Integer> neuronBefore;
@@ -391,40 +386,36 @@ public class BackPropagation extends Classifier {
             neurons.put(out, new Neuron());
         }
 
-        for (int i = 0; i < hiddNeuron.size(); i++) {
+        for (Integer aHiddNeuron : hiddNeuron) {
 
             weight = 0;
-            neuronBefore = findNodeBefore(hiddNeuron.get(i));
+            neuronBefore = findNodeBefore(aHiddNeuron);
 
             for (int j = 0; j < neuronBefore.size(); j++) {
                 if (j == 0) { //bias
-                    weight += weights.get(hiddNeuron.get(i)).get(j)[0];
+                    weight += weights.get(aHiddNeuron).get(j)[0];
                 } else {
-                    weight += weights.get(hiddNeuron.get(i)).get(j)[0] * instance.value(j - 1);
+                    weight += weights.get(aHiddNeuron).get(j)[0] * instance.value(j - 1);
                 }
             }
-            neurons.get(hiddNeuron.get(i)).input = new TreeMap<>();
-            neurons.get(hiddNeuron.get(i)).input.put(0, ActivationClass.sigmoid(weight));
+            neurons.get(aHiddNeuron).input = new TreeMap<>();
+            neurons.get(aHiddNeuron).input.put(0, ActivationClass.sigmoid(weight));
         }
 
-        for (int i = 0; i < outNeuron.size(); i++) {
+        for (Integer anOutNeuron : outNeuron) {
 
             weight = 0;
-            neuronBefore = findNodeBefore(outNeuron.get(i));
+            neuronBefore = findNodeBefore(anOutNeuron);
 
             for (int j = 0; j < neuronBefore.size(); j++) {
                 if (j == 0) { //bias
-                    weight += weights.get(outNeuron.get(i)).get(j)[0];
+                    weight += weights.get(anOutNeuron).get(j)[0];
                 } else {
-                    weight += weights.get(outNeuron.get(i)).get(neuronBefore.get(j))[0] * neurons.get(neuronBefore.get(j)).input.get(0);
+                    weight += weights.get(anOutNeuron).get(neuronBefore.get(j))[0] * neurons.get(neuronBefore.get(j)).input.get(0);
                 }
             }
-            neurons.get(outNeuron.get(i)).input = new TreeMap<>();
-            neurons.get(outNeuron.get(i)).input.put(0, ActivationClass.sigmoid(weight));
-        }
-
-        for (Integer hid : hiddNeuron) {
-            System.out.println(neurons.get(hid).input.get(0));
+            neurons.get(anOutNeuron).input = new TreeMap<>();
+            neurons.get(anOutNeuron).input.put(0, ActivationClass.sigmoid(weight));
         }
 
         for (Integer out : outNeuron) {
@@ -432,10 +423,8 @@ public class BackPropagation extends Classifier {
                 maxValue = neurons.get(out).input.get(0);
                 classIndex = out;
             }
-            System.out.println(neurons.get(out).input.get(0));
         }
 
-        System.out.println(classIndex);
         return classMap.get(classIndex);
     }
 }
