@@ -1,9 +1,8 @@
 package Util;
 
-import ANN.BackPropagation;
+import ANN.Backpropagation;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
-import weka.classifiers.bayes.NaiveBayes;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
 import weka.core.converters.CSVLoader;
@@ -93,7 +92,6 @@ public class Util {
 
     /**
      * apply all filter to build the classifier
-     * @param train data training
      * @param Classifier model
      */
     public static void buildModel(String Classifier) {
@@ -101,7 +99,7 @@ public class Util {
             // Membangun model dan melakukan test
             switch (Classifier.toLowerCase()) {
                 case "mlp" :
-                    BackPropagation bp = new BackPropagation();
+                    Backpropagation bp = new Backpropagation();
                     bp.data = data;
                     bp.setNominalToBinary();
                     bp.setNumOfInputNeuron();
@@ -248,7 +246,7 @@ public class Util {
 
             switch (Classifier.toLowerCase()) {
                 case "mlp" :
-                    classifier = new BackPropagation();
+                    classifier = new Backpropagation();
                     break;
                 default :
                     break;
