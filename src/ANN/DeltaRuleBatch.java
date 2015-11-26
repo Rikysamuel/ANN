@@ -1,5 +1,7 @@
 package ANN;
 
+import Util.ActivationClass;
+import Util.Util;
 import weka.core.Instance;
 import weka.core.Instances;
 
@@ -43,25 +45,6 @@ public class DeltaRuleBatch extends DeltaRule {
         listFinalNewWeight = new ArrayList<>();
     }
 
-    public Double computeSigmoidFunction(double sumNetFunction) {
-        return (1.0 / (1.0 + Math.exp(-1.0 * sumNetFunction)));
-    }
-
-    @Override
-    public Instances readInput(String filename) {
-        FileReader file = null;
-        try {
-            file = new FileReader(filename);
-            try (BufferedReader reader = new BufferedReader(file)) {
-                inputDataSet = new Instances(reader);
-            }
-            inputDataSet.setClassIndex(inputDataSet.numAttributes() - 1);
-        } catch (IOException ex) {
-            Logger.getLogger(Backpropagation.class.getName()).log(Level.SEVERE, null, ex);
-        }
-        return inputDataSet;
-    }
-
     @Override
     public void loadInstancesIntoInputValue(Instances instances) {
         numData = instances.numInstances();
@@ -102,6 +85,7 @@ public class DeltaRuleBatch extends DeltaRule {
         }
     }
 
+    @Override
     public void initializeFinalDeltaWeight() {
         finalDeltaWeight = new Double[numAttributes];
         for (int i=0;i<numAttributes;i++) {
@@ -109,6 +93,7 @@ public class DeltaRuleBatch extends DeltaRule {
         }
     }
 
+    @Override
     public void initializeFinalNewWeight() {
         finalNewWeight = new Double[numAttributes];
         for (int i=0;i<numAttributes;i++) {
@@ -149,7 +134,7 @@ public class DeltaRuleBatch extends DeltaRule {
         for (int k=0;k<numAttributes;k++) {
             sumNet += inputValueThisInstance[k] * inputWeightThisInstance[k];
         }
-        return computeSigmoidFunction(sumNet);
+        return ActivationClass.sigmoid(sumNet);
     }
 
     @Override
@@ -225,9 +210,9 @@ public class DeltaRuleBatch extends DeltaRule {
 
     public static void main(String[] arg) {
         DeltaRule deltaBatchClassifier = new DeltaRuleBatch(0.1,10,0.00001,0.1);
-        Instances instances = deltaBatchClassifier.readInput("D:\\weka-3-6\\data\\iris.arff");
+        Util.loadARFF("D:\\weka-3-6\\data\\iris.arff");
         try {
-            deltaBatchClassifier.buildClassifier(instances);
+            deltaBatchClassifier.buildClassifier(Util.getData());
         } catch (Exception e) {
             e.printStackTrace();
         }

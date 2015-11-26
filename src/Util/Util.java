@@ -1,6 +1,9 @@
 package Util;
 
-import ANN.Backpropagation;
+import ANN.BackPropagation;
+import ANN.DeltaRuleBatch;
+import ANN.DeltaRuleIncremental;
+import ANN.PerceptronTrainingRule;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
@@ -99,7 +102,7 @@ public class Util {
             // Membangun model dan melakukan test
             switch (Classifier.toLowerCase()) {
                 case "mlp" :
-                    Backpropagation bp = new Backpropagation();
+                    BackPropagation bp = new BackPropagation();
                     bp.data = data;
                     bp.setNominalToBinary();
                     bp.setNumOfInputNeuron();
@@ -246,7 +249,16 @@ public class Util {
 
             switch (Classifier.toLowerCase()) {
                 case "mlp" :
-                    classifier = new Backpropagation();
+                    classifier = new BackPropagation();
+                    break;
+                case "batch" :
+                    classifier = new DeltaRuleBatch();
+                    break;
+                case "incremental" :
+                    classifier = new DeltaRuleIncremental();
+                    break;
+                case "perceptron" :
+                    classifier = new PerceptronTrainingRule();
                     break;
                 default :
                     break;
