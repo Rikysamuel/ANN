@@ -76,8 +76,11 @@ public abstract class DeltaRule extends Classifier {
         newWeight = new ArrayList<>();
     }
 
-    /* Load instances from arff file */
-    public abstract Instances readInput(String filename);
+    /* Initialize final delta weight resulted per epoch */
+    public abstract void initializeFinalDeltaWeight();
+
+    /* Initialize final new weight resulted per epoch */
+    public abstract void initializeFinalNewWeight();
 
     /* Convert instances data into input value */
     public abstract void loadInstancesIntoInputValue(Instances instances);

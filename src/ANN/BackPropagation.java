@@ -13,7 +13,7 @@ import java.util.*;
  * Backpropagation Algorithm for ANN classifier
  * Created by rikysamuel on 11/4/2015.
  */
-public class Backpropagation extends Classifier {
+public class BackPropagation extends Classifier {
     private int numEpoch;
     private int numOfHiddenNeuron;
     private int numOfOutputNeuron;
@@ -29,7 +29,7 @@ public class Backpropagation extends Classifier {
     private Map<Integer, Neuron> neurons;
     private Map<Integer, Map<Integer, Double[]>> weights;
 
-    public Backpropagation(){
+    public BackPropagation(){
         learningRate = 0.1;
         momentum = 0.1;
         numOfHiddenNeuron = 2;
@@ -171,7 +171,7 @@ public class Backpropagation extends Classifier {
                 } else {
                     temp = new HashMap<>();
                 }
-                temp.put(i,d);
+                temp.put(i, d);
                 weights.put(j, temp);
             }
         }

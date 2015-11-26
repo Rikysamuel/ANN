@@ -10,7 +10,7 @@ public class ActivationClass {
         return (exp > 0) ? (1 / exp) : 0;
     }
 
-    public static double sign() {
-        return -1;
+    public static double sign(double value) {
+        return (value >= 0) ? 1 : 0;
     }
 }

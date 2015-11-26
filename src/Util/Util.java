@@ -1,6 +1,6 @@
 package Util;
 
-import ANN.Backpropagation;
+import ANN.*;
 import weka.classifiers.Classifier;
 import weka.classifiers.Evaluation;
 import weka.core.Instances;
@@ -114,7 +114,7 @@ public class Util {
             // Membangun model dan melakukan test
             switch (Classifier.toLowerCase()) {
                 case "mlp" :
-                    Backpropagation bp = new Backpropagation();
+                    BackPropagation bp = new BackPropagation();
                     data = Util.setNominalToBinary(data);
                     bp.data = data;
                     bp.setNumOfInputNeuron();
@@ -127,6 +127,30 @@ public class Util {
                     bp.setNumEpoch(10);
 
                     classifier = bp;
+                    break;
+                case "batch" :
+                    DeltaRuleBatch batch = new DeltaRuleBatch();
+                    batch.setInputData(data);
+                    batch.setNominalToBinary();
+                    batch.setLearningRate(0.1);
+                    batch.setMomentum(0.1);
+                    batch.setNumEpoch(10);
+                    batch.setThresholdError(0.001);
+
+                    classifier = batch;
+                    break;
+                case "incremental" :
+                    DeltaRuleIncremental incremental = new DeltaRuleIncremental();
+                    incremental.setInputData(data);
+                    incremental.setNominalToBinary();
+                    incremental.setLearningRate(0.1);
+                    incremental.setMomentum(0.1);
+                    incremental.setNumEpoch(10);
+                    incremental.setThresholdError(0.001);
+
+                    classifier = incremental;
+                    break;
+                case "perceptron" :
                     break;
                 default :
                     break;
@@ -262,7 +286,16 @@ public class Util {
 
             switch (Classifier.toLowerCase()) {
                 case "mlp" :
-                    classifier = new Backpropagation();
+                    classifier = new BackPropagation();
+                    break;
+                case "batch" :
+                    classifier = new DeltaRuleBatch();
+                    break;
+                case "incremental" :
+                    classifier = new DeltaRuleIncremental();
+                    break;
+                case "perceptron" :
+                    classifier = new PerceptronTrainingRule();
                     break;
                 default :
                     break;
