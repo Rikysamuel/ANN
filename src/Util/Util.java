@@ -108,7 +108,7 @@ public class Util {
                     bp.setNumNeuron(2, true); //hidden
                     bp.setMomentum(0.1);
                     bp.setLearningRate(0.1);
-                    bp.setNumEpoch(4);
+                    bp.setNumEpoch(100);
 
                     classifier = bp;
                     break;
@@ -117,8 +117,8 @@ public class Util {
                     batch.setInputData(data);
                     batch.setNominalToBinary();
                     batch.setLearningRate(0.1);
-                    batch.setMomentum(0.1);
-                    batch.setNumEpoch(10);
+                    batch.setMomentum(0);
+                    batch.setNumEpoch(100);
                     batch.setThresholdError(0.001);
 
                     classifier = batch;
@@ -128,8 +128,8 @@ public class Util {
                     incremental.setInputData(data);
                     incremental.setNominalToBinary();
                     incremental.setLearningRate(0.1);
-                    incremental.setMomentum(0.1);
-                    incremental.setNumEpoch(10);
+                    incremental.setMomentum(0);
+                    incremental.setNumEpoch(100);
                     incremental.setThresholdError(0.001);
 
                     classifier = incremental;

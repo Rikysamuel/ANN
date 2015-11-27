@@ -68,16 +68,16 @@ public class DeltaRuleIncremental extends DeltaRule {
 
     @Override
     public void initializeFinalDeltaWeight() {
-        finalDeltaWeight = new Double[numAttributes];
-        for (int i=0;i<numAttributes;i++) {
+        finalDeltaWeight = new Double[numAttributes-1];
+        for (int i=0;i<numAttributes-1;i++) {
             finalDeltaWeight[i] = 0.0;
         }
     }
 
     @Override
     public void initializeFinalNewWeight() {
-        finalNewWeight = new Double[numAttributes];
-        for (int i=0;i<numAttributes;i++) {
+        finalNewWeight = new Double[numAttributes-1];
+        for (int i=0;i<numAttributes-1;i++) {
             finalNewWeight[i] = 0.0;
         }
     }
@@ -88,8 +88,8 @@ public class DeltaRuleIncremental extends DeltaRule {
         numAttributes = instances.numAttributes();
         for (int i=0;i<numData;i++) {
             Instance thisInstance = instances.instance(i);
-            Double[] listInput = new Double[numAttributes];
-            for (int j=0;j<numAttributes;j++) {
+            Double[] listInput = new Double[numAttributes-1];
+            for (int j=0;j<numAttributes-1;j++) {
                 listInput[j] = thisInstance.value(j);
             }
             inputValue.add(listInput);
@@ -99,14 +99,14 @@ public class DeltaRuleIncremental extends DeltaRule {
     @Override
     public void loadOrGenerateInputWeight(boolean isRandom) {
         // Khusus delta incremental, hanya mengisi 1 input weight
-        Double newWeight[] = new Double[numAttributes];
+        Double newWeight[] = new Double[numAttributes-1];
         if (isRandom) {
             Random random = new Random();
-            for (int i = 0; i < numAttributes; i++) {
+            for (int i = 0; i < numAttributes-1; i++) {
                 newWeight[i] = (double) random.nextInt(1);
             }
         } else {
-            for (int i = 0; i < numAttributes; i++) {
+            for (int i = 0; i < numAttributes-1; i++) {
                 newWeight[i] = 0.0;
             }
         }
@@ -133,7 +133,7 @@ public class DeltaRuleIncremental extends DeltaRule {
     @Override
     public double computeOutputInstance(Double[] inputValueThisInstance, Double[] inputWeightThisInstance) {
         double sumNet = 0.0;
-        for (int k=0;k<numAttributes;k++) {
+        for (int k=0;k<numAttributes-1;k++) {
             sumNet += inputValueThisInstance[k] * inputWeightThisInstance[k];
         }
         return ActivationClass.sigmoid(sumNet);
@@ -141,8 +141,8 @@ public class DeltaRuleIncremental extends DeltaRule {
 
     @Override
     public Double[] computeDeltaWeightInstance(Double[] inputValueThisInstance, double errorThisInstance, int indexData) {
-        Double[] deltaWeightThisInstance = new Double[numAttributes];
-        for (int k=0;k<numAttributes;k++) {
+        Double[] deltaWeightThisInstance = new Double[numAttributes-1];
+        for (int k=0;k<numAttributes-1;k++) {
             double previousDeltaWeightThisAttribute;
             if (indexData > 0) {
                 previousDeltaWeightThisAttribute = deltaWeight.get(indexData-1)[k];
@@ -156,16 +156,16 @@ public class DeltaRuleIncremental extends DeltaRule {
 
     @Override
     public Double[] computeNewWeightInstance(Double[] inputWeightThisInstance, Double[] deltaWeightThisInstance) {
-        Double[] newWeightThisInstance = new Double[numAttributes];
-        for (int k=0;k<numAttributes;k++) {
+        Double[] newWeightThisInstance = new Double[numAttributes-1];
+        for (int k=0;k<numAttributes-1;k++) {
             newWeightThisInstance[k] = deltaWeightThisInstance[k] + inputWeightThisInstance[k];
         }
         return newWeightThisInstance;
     }
 
     public void initializeInputWeightThisIteration(int indexData) {
-        Double[] inputWeightThisIteration = new Double[numAttributes];
-        for (int j = 0; j < numAttributes; j++) {
+        Double[] inputWeightThisIteration = new Double[numAttributes-1];
+        for (int j = 0; j < numAttributes-1; j++) {
             inputWeightThisIteration[j] = finalNewWeight[j];
         }
         inputWeight.add(indexData,inputWeightThisIteration);
@@ -217,6 +217,7 @@ public class DeltaRuleIncremental extends DeltaRule {
             System.out.println("Error epoch " + (i+1) + " : " + mseValue);
             if (mseValue < threshold) {
                 isConvergent = true;
+                break;
             }
         }
     }
