@@ -21,18 +21,18 @@ public abstract class DeltaRule extends Classifier {
     /* vector of input value for neuron */
     List<Double[]> inputValue;
     /* vector of input weight for neuron */
-    List<Double[]> inputWeight;
+    List<List<Double[]>> inputWeight;
     /* vector of target value */
     List<Double> target;
     /* the result of net function */
-    List<Double> output;
+    List<List<Double>> output;
 
     /* the difference between target and output (t-o) */
     List<Double> errorToTarget;
     /* the delta weight */
-    List<Double[]> deltaWeight;
+    List<List<Double[]>> deltaWeight;
     /* the new weight */
-    List<Double[]> newWeight;
+    List<List<Double[]>> newWeight;
 
     /* dataset input weka */
     Instances inputDataSet;
@@ -40,6 +40,8 @@ public abstract class DeltaRule extends Classifier {
     int numData;
     /* number of attributes */
     int numAttributes;
+    /* number of class label */
+    int numClasses;
 
     /* check if iteration is convergent or not */
     boolean isConvergent;
@@ -95,11 +97,14 @@ public abstract class DeltaRule extends Classifier {
     public abstract double computeEpochError(List<Double> finalErrorThisEpoch);
 
     /* compute output of one instance using sigmoid activation function */
-    public abstract double computeOutputInstance(Double[] inputValueThisInstance, Double[] inputWeightThisInstance);
+    public abstract Double computeOutputInstance(Double[] inputValueThisInstance, Double[] inputWeightThisInstance);
 
     /* compute delta weight of one instance */
-    public abstract Double[] computeDeltaWeightInstance(Double[] inputValueThisInstance, double errorThisInstance, int indexData);
+    public abstract Double[] computeDeltaWeightInstance(Double[] inputValueThisInstance, Double errorThisInstance, int indexData, int neuronOutputIndex);
 
     /* compute new weight yields for one instance */
     public abstract Double[] computeNewWeightInstance(Double[] inputWeightThisInstance, Double[] deltaWeightThisInstance);
+
+    /* compute error (target - output) each output neuron */
+    public abstract Double computeErrorThisInstance(Double targetOutputPerNeuron, Double outputPerNeuron);
 }
