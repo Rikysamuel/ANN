@@ -1,6 +1,7 @@
 package Util;
 
 /**
+ * Activation class helper
  * Created by rikysamuel on 11/20/2015.
  */
 public class ActivationClass {

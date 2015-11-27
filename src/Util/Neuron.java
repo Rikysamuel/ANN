@@ -4,6 +4,7 @@ import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
+ * Neuron class helper
  * Created by rikysamuel on 11/20/2015.
  */
 public class Neuron {
