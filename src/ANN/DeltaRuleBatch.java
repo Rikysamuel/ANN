@@ -2,6 +2,7 @@ package ANN;
 
 import Util.ActivationClass;
 import Util.Util;
+import weka.core.Capabilities;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
@@ -56,14 +57,14 @@ public class DeltaRuleBatch extends DeltaRule {
         listFinalNewWeight = new ArrayList<>();
     }
 
-    public void setNominalToBinary() {
-        NominalToBinary ntb = new NominalToBinary();
-        try {
-            ntb.setInputFormat(inputDataSet);
-            inputDataSet = new Instances(Filter.useFilter(inputDataSet, ntb));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public Capabilities getCapabilities() {
+        Capabilities result = super.getCapabilities();
+        result.disableAll();
+        result.enable(Capabilities.Capability.NOMINAL_ATTRIBUTES);
+        result.enable(Capabilities.Capability.NUMERIC_ATTRIBUTES);
+        result.enable(Capabilities.Capability.MISSING_VALUES);
+        result.enable(Capabilities.Capability.NOMINAL_CLASS);
+        return result;
     }
 
     @Override
@@ -72,8 +73,8 @@ public class DeltaRuleBatch extends DeltaRule {
         numAttributes = instances.numAttributes();
         for (int i=0;i<numData;i++) {
             Instance thisInstance = instances.instance(i);
-            Double[] listInput = new Double[numAttributes];
-            for (int j=0;j<numAttributes;j++) {
+            Double[] listInput = new Double[numAttributes-1];
+            for (int j=0;j<numAttributes-1;j++) {
                 listInput[j] = thisInstance.value(j);
             }
             inputValue.add(listInput);
@@ -83,14 +84,14 @@ public class DeltaRuleBatch extends DeltaRule {
     @Override
     public void loadOrGenerateInputWeight(boolean isRandom) {
         for (int j=0;j<numData;j++) {
-            Double newWeight[] = new Double[numAttributes];
+            Double newWeight[] = new Double[numAttributes-1];
             if (isRandom) {
                 Random random = new Random();
-                for (int i = 0; i < numAttributes; i++) {
+                for (int i = 0; i < numAttributes-1; i++) {
                     newWeight[i] = (double) random.nextInt(1);
                 }
             } else {
-                for (int i = 0; i < numAttributes; i++) {
+                for (int i = 0; i < numAttributes-1; i++) {
                     newWeight[i] = 0.0;
                 }
             }
@@ -108,23 +109,23 @@ public class DeltaRuleBatch extends DeltaRule {
 
     @Override
     public void initializeFinalDeltaWeight() {
-        finalDeltaWeight = new Double[numAttributes];
-        for (int i=0;i<numAttributes;i++) {
+        finalDeltaWeight = new Double[numAttributes-1];
+        for (int i=0;i<numAttributes-1;i++) {
             finalDeltaWeight[i] = 0.0;
         }
     }
 
     @Override
     public void initializeFinalNewWeight() {
-        finalNewWeight = new Double[numAttributes];
-        for (int i=0;i<numAttributes;i++) {
+        finalNewWeight = new Double[numAttributes-1];
+        for (int i=0;i<numAttributes-1;i++) {
             finalNewWeight[i] = 0.0;
         }
     }
 
     public Double[] computeSumFinalDeltaWeight() {
-        Double[] sumFinalDeltaWeight = new Double[numAttributes];
-        for (int k=0;k<numAttributes;k++) {
+        Double[] sumFinalDeltaWeight = new Double[numAttributes-1];
+        for (int k=0;k<numAttributes-1;k++) {
             Double sumDeltaWeightThisAttribute = 0.0;
             for (int j=0;j<numData;j++) {
                 sumDeltaWeightThisAttribute += deltaWeight.get(j)[k];
@@ -136,9 +137,9 @@ public class DeltaRuleBatch extends DeltaRule {
 
     public void initializeInputWeightThisEpoch() {
         for (int k=0;k<numData;k++) {
-            Double[] inputWeightThisEpoch = new Double[numAttributes];
+            Double[] inputWeightThisEpoch = new Double[numAttributes-1];
             for (int i = 0; i < numData; i++) {
-                for (int j = 0; j < numAttributes; j++) {
+                for (int j = 0; j < numAttributes-1; j++) {
                     inputWeightThisEpoch[j] = finalNewWeight[j];
                 }
             }
@@ -158,7 +159,7 @@ public class DeltaRuleBatch extends DeltaRule {
     @Override
     public double computeOutputInstance(Double[] inputValueThisInstance, Double[] inputWeightThisInstance) {
         double sumNet = 0.0;
-        for (int k=0;k<numAttributes;k++) {
+        for (int k=0;k<numAttributes-1;k++) {
             sumNet += inputValueThisInstance[k] * inputWeightThisInstance[k];
         }
         return ActivationClass.sigmoid(sumNet);
@@ -166,8 +167,8 @@ public class DeltaRuleBatch extends DeltaRule {
 
     @Override
     public Double[] computeDeltaWeightInstance(Double[] inputValueThisInstance, double errorThisInstance, int indexData) {
-        Double[] deltaWeightThisInstance = new Double[numAttributes];
-        for (int k=0;k<numAttributes;k++) {
+        Double[] deltaWeightThisInstance = new Double[numAttributes-1];
+        for (int k=0;k<numAttributes-1;k++) {
             double previousDeltaWeightThisAttribute;
             if (indexData > 0) {
                 previousDeltaWeightThisAttribute = deltaWeight.get(indexData-1)[k];
@@ -181,8 +182,8 @@ public class DeltaRuleBatch extends DeltaRule {
 
     @Override
     public Double[] computeNewWeightInstance(Double[] inputWeightThisInstance, Double[] deltaWeightThisInstance) {
-        Double[] newWeightThisInstance = new Double[numAttributes];
-        for (int k=0;k<numAttributes;k++) {
+        Double[] newWeightThisInstance = new Double[numAttributes-1];
+        for (int k=0;k<numAttributes-1;k++) {
             newWeightThisInstance[k] = deltaWeightThisInstance[k] + inputWeightThisInstance[k];
         }
         return newWeightThisInstance;
@@ -233,10 +234,19 @@ public class DeltaRuleBatch extends DeltaRule {
             System.out.println("Error epoch " + (i+1) + " : " + mseValue);
             if (mseValue < threshold) {
                 isConvergent = true;
+                break;
             }
         }
     }
 
+    public double classifyInstance(Instance instance) {
+        Double[] inputValue = new Double[numAttributes-1];
+        for (int i=0;i<instance.numAttributes()-1;i++) {
+            inputValue[i] = instance.value(i);
+        }
+
+        return 0;
+    }
 
     public static void main(String[] arg) {
         Util.loadARFF("D:\\weka-3-6\\data\\delta_rule_1.arff");

@@ -11,6 +11,10 @@ public class ActivationClass {
     }
 
     public static double sign(double value) {
+        return (value >= 0) ? 1 : -1;
+    }
+
+    public static double step(double value) {
         return (value >= 0) ? 1 : 0;
     }
 }

@@ -147,22 +147,26 @@ public class Util {
                     break;
                 case "batch" :
                     DeltaRuleBatch batch = new DeltaRuleBatch();
+                    data = Util.setNominalToBinary(data);
+                    data = Util.useNormalization(data);
+                    data.setClassIndex(data.numAttributes()-1);
                     batch.setInputData(data);
-                    batch.setNominalToBinary();
                     batch.setLearningRate(0.1);
-                    batch.setMomentum(0.1);
-                    batch.setNumEpoch(10);
+                    batch.setMomentum(0);
+                    batch.setNumEpoch(100);
                     batch.setThresholdError(0.001);
 
                     classifier = batch;
                     break;
                 case "incremental" :
                     DeltaRuleIncremental incremental = new DeltaRuleIncremental();
+                    data = Util.setNominalToBinary(data);
+                    data = Util.useNormalization(data);
+                    data.setClassIndex(data.numAttributes()-1);
                     incremental.setInputData(data);
-                    incremental.setNominalToBinary();
                     incremental.setLearningRate(0.1);
-                    incremental.setMomentum(0.1);
-                    incremental.setNumEpoch(10);
+                    incremental.setMomentum(0);
+                    incremental.setNumEpoch(100);
                     incremental.setThresholdError(0.001);
 
                     classifier = incremental;
