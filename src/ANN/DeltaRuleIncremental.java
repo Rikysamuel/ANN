@@ -175,8 +175,13 @@ public class DeltaRuleIncremental extends DeltaRule {
         return result;
     }
 
-    public void initializeInputWeightThisIteration() {
-
+    public void initializeInputWeightThisIteration(int indexData, int outputNeuronIndex) {
+        Double[] inputWeightThisIteration = new Double[numAttributes-1];
+        for (int j = 0; j < numAttributes-1; j++) {
+            inputWeightThisIteration[j] = finalNewWeight.get(outputNeuronIndex)[j];
+        }
+        inputWeight.add(new ArrayList<>());
+        inputWeight.get(outputNeuronIndex).add(indexData, inputWeightThisIteration);
     }
 
     @Override
@@ -196,33 +201,33 @@ public class DeltaRuleIncremental extends DeltaRule {
             // Proses 1 EPOCH
             for (int j=0;j<numClasses;j++) {
                 List<Double[]> listInputWeightThisClass = inputWeight.get(j);
-                List<Double[]> listDeltaWeightThisClass = deltaWeight.get(j);
-                List<Double[]> listNewWeightThisClass = newWeight.get(j);
+                deltaWeight.add(new ArrayList<>());
+                newWeight.add(new ArrayList<>());
                 for (int k=0;k<numData;k++) {
-                    initializeInputWeightThisIteration();
+                    initializeInputWeightThisIteration(k,j);
                     // Hitung output data sementara
                     double tempOutputThisInstance = computeOutputInstance(inputValue.get(k),listInputWeightThisClass.get(k));
                     // Hitung (target - output) sementara
                     double tempErrorThisInstance = computeErrorThisInstance(target.get(k),tempOutputThisInstance);
                     // Hitung deltaweight instance ini di epoch ini
                     Double[] deltaWeightThisInstance = computeDeltaWeightInstance(inputValue.get(k),tempErrorThisInstance,k,j);
-                    listDeltaWeightThisClass.add(deltaWeightThisInstance);
+                    deltaWeight.get(j).add(deltaWeightThisInstance);
                     finalDeltaWeight.add(deltaWeightThisInstance);
                     // Hitung newweight instance ini di epoch ini
                     Double[] newWeightThisInstance = computeNewWeightInstance(listInputWeightThisClass.get(k), deltaWeightThisInstance);
-                    listNewWeightThisClass.add(newWeightThisInstance);
+                    newWeight.get(j).add(newWeightThisInstance);
                     finalNewWeight.add(newWeightThisInstance);
                 }
             }
             // Isi error to target akhir sebelum menghitung MSE
             for (int j=0;j<numClasses;j++) {
                 Double[] finalWeightThisClass = finalNewWeight.get(j);
-                List<Double> listOutputThisClass = output.get(j);
+                output.add(new ArrayList<>());
                 for (int k=0;k<numData;k++) {
-                    listOutputThisClass.add(computeOutputInstance(inputValue.get(k), finalWeightThisClass));
+                    output.get(j).add(computeOutputInstance(inputValue.get(k), finalWeightThisClass));
                 }
-                Collections.sort(listOutputThisClass);
-                errorToTarget.add(listOutputThisClass.get(listOutputThisClass.size()-1));
+                Collections.sort(output.get(j));
+                errorToTarget.add(output.get(j).get(output.get(j).size() - 1));
             }
             // Hitung MSE Error epoch ini
             double mseValue = computeEpochError(errorToTarget);

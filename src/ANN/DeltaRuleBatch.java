@@ -221,6 +221,8 @@ public class DeltaRuleBatch extends DeltaRule {
             // Proses 1 EPOCH
             for (int j=0;j<numClasses;j++) {
                 List<Double[]> listInputWeightThisClass = inputWeight.get(j);
+                deltaWeight.add(new ArrayList<>());
+                newWeight.add(new ArrayList<>());
                 for (int k=0;k<numData;k++) {
                     // Hitung output data sementara
                     double tempOutputThisInstance = computeOutputInstance(inputValue.get(k),listInputWeightThisClass.get(k));
@@ -235,18 +237,18 @@ public class DeltaRuleBatch extends DeltaRule {
                 }
                 Double[] sumFinalDeltaWeightThisClass = computeSumFinalDeltaWeight(j);
                 finalDeltaWeight.add(sumFinalDeltaWeightThisClass);
-                Double[] finalNewWeightThisClass = computeNewWeightInstance(listInputWeightThisClass.get(numData-1),sumFinalDeltaWeightThisClass);
+                Double[] finalNewWeightThisClass = computeNewWeightInstance(listInputWeightThisClass.get(numData - 1), sumFinalDeltaWeightThisClass);
                 finalNewWeight.add(finalNewWeightThisClass);
             }
             // Isi error to target akhir sebelum menghitung MSE
             for (int j=0;j<numClasses;j++) {
                 Double[] finalWeightThisClass = finalNewWeight.get(j);
-                List<Double> listOutputThisClass = output.get(j);
+                output.add(new ArrayList<>());
                 for (int k=0;k<numData;k++) {
-                    listOutputThisClass.add(computeOutputInstance(inputValue.get(k), finalWeightThisClass));
+                    output.get(j).add(computeOutputInstance(inputValue.get(k), finalWeightThisClass));
                 }
-                Collections.sort(listOutputThisClass);
-                errorToTarget.add(listOutputThisClass.get(listOutputThisClass.size()-1));
+                Collections.sort(output.get(j));
+                errorToTarget.add(output.get(j).get(output.get(j).size()-1));
             }
             // Hitung MSE Error epoch ini
             double mseValue = computeEpochError(errorToTarget);
