@@ -6,6 +6,9 @@ import weka.classifiers.Evaluation;
 import weka.core.Instances;
 import weka.core.SerializationHelper;
 import weka.core.converters.CSVLoader;
+import weka.filters.Filter;
+import weka.filters.supervised.attribute.NominalToBinary;
+import weka.filters.unsupervised.attribute.Normalize;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -90,6 +93,32 @@ public class Util {
         return data.resample(new Random(seed));
     }
 
+    public static Instances setNominalToBinary(Instances instances) {
+        NominalToBinary ntb = new NominalToBinary();
+        Instances newInstances = null;
+        try {
+            ntb.setInputFormat(instances);
+            newInstances = new Instances(Filter.useFilter(instances, ntb));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return newInstances;
+    }
+
+    public static Instances useNormalization(Instances instances) {
+        Normalize normalize = new Normalize();
+        Instances newInstances = null;
+        try {
+            normalize.setInputFormat(instances);
+            newInstances = new Instances(Filter.useFilter(instances, normalize));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return newInstances;
+    }
+
     /**
      * apply all filter to build the classifier
      * @param Classifier model
@@ -100,15 +129,17 @@ public class Util {
             switch (Classifier.toLowerCase()) {
                 case "mlp" :
                     BackPropagation bp = new BackPropagation();
+                    data = Util.setNominalToBinary(data);
+                    data = Util.useNormalization(data);
                     bp.data = data;
-                    bp.setNominalToBinary();
                     bp.setNumOfInputNeuron();
                     bp.setBiasValue(1);
                     bp.setBiasWeight(0.1);
-                    bp.setNumNeuron(2, true); //hidden
-                    bp.setMomentum(0.1);
-                    bp.setLearningRate(0.1);
-                    bp.setNumEpoch(100);
+                    bp.setInitWeight(0.1);
+                    bp.setNumNeuron(5, true); //hidden
+                    bp.setMomentum(0.2);
+                    bp.setLearningRate(0.3);
+                    bp.setNumEpoch(5000);
 
                     classifier = bp;
                     break;

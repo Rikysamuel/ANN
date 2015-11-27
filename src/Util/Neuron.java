@@ -14,6 +14,9 @@ public class Neuron {
     /* if output neuron */
     public SortedMap<Integer, Double> targetValue;
 
+    public Neuron() {
+    }
+
     public Neuron(Neuron neuron) {
         this.outValue = neuron.outValue;
         this.input = neuron.input;
