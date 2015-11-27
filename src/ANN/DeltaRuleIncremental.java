@@ -2,6 +2,7 @@ package ANN;
 
 import Util.ActivationClass;
 import Util.Util;
+import weka.core.Capabilities;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
@@ -56,14 +57,14 @@ public class DeltaRuleIncremental extends DeltaRule {
         listFinalNewWeight = new ArrayList<>();
     }
 
-    public void setNominalToBinary() {
-        NominalToBinary ntb = new NominalToBinary();
-        try {
-            ntb.setInputFormat(inputDataSet);
-            inputDataSet = new Instances(Filter.useFilter(inputDataSet, ntb));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+    public Capabilities getCapabilities() {
+        Capabilities result = super.getCapabilities();
+        result.disableAll();
+        result.enable(Capabilities.Capability.NOMINAL_ATTRIBUTES);
+        result.enable(Capabilities.Capability.NUMERIC_ATTRIBUTES);
+        result.enable(Capabilities.Capability.MISSING_VALUES);
+        result.enable(Capabilities.Capability.NOMINAL_CLASS);
+        return result;
     }
 
     @Override
@@ -220,6 +221,10 @@ public class DeltaRuleIncremental extends DeltaRule {
                 break;
             }
         }
+    }
+
+    public double classifyInstance(Instance instance) {
+        return 0;
     }
 
     public static void main(String[] arg) {
