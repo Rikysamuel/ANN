@@ -19,11 +19,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Util Helper Class
  * Created by rikysamuel on 11/26/2015.
  */
 public class Util {
     private static Classifier classifier;
     private static Instances data;
+
+    public static void setData(Instances newData) {
+        data = newData;
+    }
 
     public static Instances getData() {
         return data;
@@ -93,6 +98,11 @@ public class Util {
         return data.resample(new Random(seed));
     }
 
+    /**
+     * filter the nominal attribute on the instances into the binary
+     * @param instances the instances
+     * @return new instances
+     */
     public static Instances setNominalToBinary(Instances instances) {
         NominalToBinary ntb = new NominalToBinary();
         Instances newInstances = null;
@@ -106,6 +116,11 @@ public class Util {
         return newInstances;
     }
 
+    /**
+     * filter the numeric attribute on be normalized
+     * @param instances the instances
+     * @return new instances
+     */
     public static Instances useNormalization(Instances instances) {
         Normalize normalize = new Normalize();
         Instances newInstances = null;
@@ -128,20 +143,7 @@ public class Util {
             // Membangun model dan melakukan test
             switch (Classifier.toLowerCase()) {
                 case "mlp" :
-                    BackPropagation bp = new BackPropagation();
-                    data = Util.setNominalToBinary(data);
-                    data = Util.useNormalization(data);
-                    bp.data = data;
-                    bp.setNumOfInputNeuron();
-                    bp.setBiasValue(1);
-                    bp.setBiasWeight(0.1);
-                    bp.setInitWeight(0.1);
-                    bp.setNumNeuron(5, true); //hidden
-                    bp.setMomentum(0.2);
-                    bp.setLearningRate(0.3);
-                    bp.setNumEpoch(5000);
-
-                    classifier = bp;
+                    classifier = new BackPropagation(data);
                     break;
                 case "batch" :
                     DeltaRuleBatch batch = new DeltaRuleBatch();
@@ -287,11 +289,10 @@ public class Util {
     /**
      * show learning statistic result by percentage split
      * @param data training data
-     * @param attributeIndices attribute number to train
      * @param trainPercent percentage of the training data
      * @param Classifier model
      */
-    public static void PercentageSplit(Instances data, String attributeIndices, double trainPercent, String Classifier) {
+    public static void PercentageSplit(Instances data, double trainPercent, String Classifier) {
         try {
             int trainSize = (int) Math.round(data.numInstances()* trainPercent / 100);
             int testSize = data.numInstances() - trainSize;
@@ -305,7 +306,7 @@ public class Util {
 
             switch (Classifier.toLowerCase()) {
                 case "mlp" :
-                    classifier = new BackPropagation();
+                    classifier = new BackPropagation(data);
                     break;
                 case "batch" :
                     classifier = new DeltaRuleBatch();

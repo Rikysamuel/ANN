@@ -1,12 +1,15 @@
 package Util;
 
+import java.io.Serializable;
 import java.util.SortedMap;
 import java.util.TreeMap;
 
 /**
+ * Neuron class helper
  * Created by rikysamuel on 11/20/2015.
  */
-public class Neuron {
+public class Neuron implements Serializable{
+    private static final long serialVersionUID = -5990607817048210779L;
     public double outValue;
     public SortedMap<Integer, Double> input;
     public double error;
