@@ -151,7 +151,7 @@ public class Util {
                     batch.setInputData(data);
                     batch.setLearningRate(0.1);
                     batch.setMomentum(0);
-                    batch.setNumEpoch(2);
+                    batch.setNumEpoch(100);
                     batch.setThresholdError(0.001);
 
                     classifier = batch;

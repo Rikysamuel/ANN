@@ -11,10 +11,7 @@ import weka.filters.supervised.attribute.NominalToBinary;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -118,22 +115,22 @@ public class DeltaRuleBatch extends DeltaRule {
     @Override
     public void initializeFinalDeltaWeight() {
         for (int i=0;i<numClasses;i++) {
-            Double[] finalDeltaWeightPerClass = new Double[numAttributes-1];
-            for (int j=0;j<numAttributes-1;j++) {
+            Double[] finalDeltaWeightPerClass = new Double[numAttributes - 1];
+            for (int j = 0; j < numAttributes - 1; j++) {
                 finalDeltaWeightPerClass[j] = 0.0;
             }
-            finalDeltaWeight.add(finalDeltaWeightPerClass);
+            finalDeltaWeight.add(i, finalDeltaWeightPerClass);
         }
     }
 
     @Override
     public void initializeFinalNewWeight() {
         for (int i=0;i<numClasses;i++) {
-            Double[] finalNewWeightPerClass = new Double[numAttributes-1];
-            for (int j=0;j<numAttributes-1;j++) {
+            Double[] finalNewWeightPerClass = new Double[numAttributes - 1];
+            for (int j = 0; j < numAttributes - 1; j++) {
                 finalNewWeightPerClass[j] = 0.0;
             }
-            finalNewWeight.add(finalNewWeightPerClass);
+            finalNewWeight.add(i, finalNewWeightPerClass);
         }
     }
 
@@ -176,7 +173,10 @@ public class DeltaRuleBatch extends DeltaRule {
     public Double computeOutputInstance(Double[] inputValueThisInstance, Double[] inputWeightThisInstance) {
         double sumNet = 0.0;
         for (int k=0;k<numAttributes-1;k++) {
+            /*System.out.println("Input value : " + inputValueThisInstance[k]);
+            System.out.println("Input weight : " + inputWeightThisInstance[k]); */
             sumNet += inputValueThisInstance[k] * inputWeightThisInstance[k];
+           // System.out.println("=============================");
         }
         return sumNet;
     }
@@ -221,6 +221,19 @@ public class DeltaRuleBatch extends DeltaRule {
         return trueClassIndex;
     }
 
+    public void resetDataPerEpoch() {
+        // Reset isi dari delta weight dan new weight
+        output.clear();
+        errorToTarget.clear();
+        inputWeight.clear();
+        deltaWeight.clear();
+        newWeight.clear();
+        for (int j=0;j<numClasses;j++) {
+            deltaWeight.add(new ArrayList<>());
+            newWeight.add(new ArrayList<>());
+        }
+    }
+
     @Override
     public void buildClassifier(Instances instances) throws Exception {
         loadInstancesIntoInputValue(instances);
@@ -228,53 +241,73 @@ public class DeltaRuleBatch extends DeltaRule {
         loadOrGenerateInputWeight(false);
         initializeFinalDeltaWeight();
         initializeFinalNewWeight();
+
+       /* Enumeration inst = instances.enumerateInstances();
+        while (inst.hasMoreElements()) {
+            Instance instance = (Instance) inst.nextElement();
+            System.out.println(instance.value(0) + " " + instance.value(1) + " " + instance.value(2) + " " + instance.value(3));
+        } */
         for (int i=0;i<maxEpoch;i++) {
-            // Reset isi dari delta weight dan new weight
-            deltaWeight.clear();
-            newWeight.clear();
-            inputWeight.clear();
-            output.clear();
-            errorToTarget.clear();
+            // Reset semua data yang sudah diisi sebelumnya
+            resetDataPerEpoch();
             // Masukkan input weight baru dari epoch sebelumnya
             initializeInputWeightThisEpoch();
-            // Proses 1 EPOCH
-            for (int j=0;j<numClasses;j++) {
-                List<Double[]> listInputWeightThisClass = inputWeight.get(j);
-                List<Double[]> listDeltaWeightThisClass = new ArrayList<>();
-                List<Double[]> listNewWeightThisClass = new ArrayList<>();
+           /* for (int j=0;j<numClasses;j++) {
+                System.out.println("Class : " + (j+1));
+                System.out.println("----------------------------");
                 for (int k=0;k<numData;k++) {
-                    // Hitung output data sementara
-                    double tempOutputThisInstance = computeOutputInstance(inputValue.get(k), inputWeight.get(j).get(k));
-                    // Hitung (target - output) sementara
-                    double tempErrorThisInstance = computeErrorThisInstance(target.get(j).get(k),tempOutputThisInstance);
-                    // Hitung deltaweight instance ini di epoch ini
-                    Double[] deltaWeightThisInstance = computeDeltaWeightInstance(inputValue.get(k),tempErrorThisInstance,k,j);
-                    listDeltaWeightThisClass.add(deltaWeightThisInstance);
-                    deltaWeight.add(listDeltaWeightThisClass);
-                    // Hitung newweight instance ini di epoch ini
-                    Double[] newWeightThisInstance = computeNewWeightInstance(listInputWeightThisClass.get(k), deltaWeightThisInstance);
-                    listNewWeightThisClass.add(newWeightThisInstance);
-                    newWeight.add(listNewWeightThisClass);
+                    System.out.println(inputWeight.get(j).get(k)[0] + " " + inputWeight.get(j).get(k)[1] + " " + inputWeight.get(j).get(k)[2] + " " + inputWeight.get(j).get(k)[3]);
                 }
             }
-            // Compute final delta weight and new weight
+            System.out.println("================================="); */
+            // Proses 1 EPOCH
+            for (int j=0;j<numData;j++) {
+                for (int k=0;k<numClasses;k++) {
+                    // Hitung output data sementara
+                    double tempOutputThisInstance = computeOutputInstance(inputValue.get(j), inputWeight.get(k).get(j));
+                    // Hitung (target - output) sementara
+                    double tempErrorThisInstance = computeErrorThisInstance(target.get(k).get(j),tempOutputThisInstance);
+                    // Hitung deltaweight instance ini di epoch ini
+                    Double[] deltaWeightThisInstance = computeDeltaWeightInstance(inputValue.get(j),tempErrorThisInstance,j,k);
+                    deltaWeight.get(k).add(j,deltaWeightThisInstance);
+                    // Hitung newweight instance ini di epoch ini
+                    Double[] newWeightThisInstance = computeNewWeightInstance(inputWeight.get(k).get(j), deltaWeightThisInstance);
+                    newWeight.get(k).add(j,newWeightThisInstance);
+                }
+            }
+          /*  for (int j=0;j<numClasses;j++) {
+                System.out.println("Class : " + (j+1));
+                System.out.println("----------------------------");
+                for (int k=0;k<numData;k++) {
+                    System.out.println(deltaWeight.get(j).get(k)[0] + " " + deltaWeight.get(j).get(k)[1] + " " + deltaWeight.get(j).get(k)[2] + " " + deltaWeight.get(j).get(k)[3]);
+                }
+            }
+            System.out.println("================================="); */
+            // Compute sum delta weight final one bach
             for (int j=0;j<numClasses;j++) {
                 Double[] sumFinalDeltaWeightThisClass = computeSumFinalDeltaWeight(j);
                 finalDeltaWeight.add(sumFinalDeltaWeightThisClass);
-                Double[] finalNewWeightThisClass = computeNewWeightInstance(inputWeight.get(j).get(numData - 1), sumFinalDeltaWeightThisClass);
-                finalNewWeight.add(finalNewWeightThisClass);
+                Double[] finalNewWeightThisClass = computeNewWeightInstance(inputWeight.get(j).get(numData-1), sumFinalDeltaWeightThisClass);
+               // System.out.println(finalNewWeightThisClass[0] + " " + finalNewWeightThisClass[1] + " " + finalNewWeightThisClass[2] + " " + finalNewWeightThisClass[3]);
+                finalNewWeight.set(j,finalNewWeightThisClass);
             }
+           /* for (int j=0;j<numClasses;j++) {
+                System.out.println("Class : " + (j+1));
+                System.out.println("-------------------------------");
+                System.out.println(finalNewWeight.get(j)[0] + " " + finalNewWeight.get(j)[1] + " " + finalNewWeight.get(j)[2] + " " + finalNewWeight.get(j)[3]);
+            }
+            System.out.println("================================="); */
             // Isi error to target akhir sebelum menghitung MSE
-            for (int j=0;j<numClasses;j++) {
-                Double[] finalWeightThisClass = finalNewWeight.get(j);
-                List<Double> listOutputThisClass = new ArrayList<>();
-                for (int k=0;k<numData;k++) {
-                    Double outputFinal = computeOutputInstance(inputValue.get(k),finalWeightThisClass);
-                    listOutputThisClass.add(outputFinal);
+            for (int j=0;j<numData;j++) {
+                List<Double> listOutputThisInstance = new ArrayList<>();
+                for (int k=0;k<numClasses;k++) {
+                    Double outputFinalThisClass = computeOutputInstance(inputValue.get(j),finalNewWeight.get(k));
+                    listOutputThisInstance.add(outputFinalThisClass);
                 }
-                Collections.sort(listOutputThisClass);
-                Double finalOutputThisInstance = listOutputThisClass.get(numClasses-1);
-                errorToTarget.add(computeErrorThisInstance(getTrueClassIndex(j),finalOutputThisInstance));
+                Collections.sort(listOutputThisInstance);
+                Double finalOutputThisInstance = listOutputThisInstance.get(numClasses-1);
+                Double finalErrorThisInstance = computeErrorThisInstance(getTrueClassIndex(j), finalOutputThisInstance);
+                errorToTarget.add(finalErrorThisInstance);
             }
             // Hitung MSE Error epoch ini
             double mseValue = computeEpochError(errorToTarget);

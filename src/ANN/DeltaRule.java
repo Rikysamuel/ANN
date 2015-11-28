@@ -75,7 +75,13 @@ public abstract class DeltaRule extends Classifier {
         output = new ArrayList<>();
         errorToTarget = new ArrayList<>();
         deltaWeight = new ArrayList<>();
+        for (List<Double[]> listDeltaWeight : deltaWeight) {
+            listDeltaWeight = new ArrayList<>();
+        }
         newWeight = new ArrayList<>();
+        for (List<Double[]> listNewWeight : newWeight) {
+            listNewWeight = new ArrayList<>();
+        }
     }
 
     /* Initialize final delta weight resulted per epoch */

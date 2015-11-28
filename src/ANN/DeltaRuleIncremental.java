@@ -245,16 +245,16 @@ public class DeltaRuleIncremental extends DeltaRule {
                 }
             }
             // Isi error to target akhir sebelum menghitung MSE
-            for (int j=0;j<numClasses;j++) {
-                Double[] finalWeightThisClass = finalNewWeight.get(j);
-                List<Double> listOutputThisClass = new ArrayList<>();
-                for (int k=0;k<numData;k++) {
-                    Double outputFinal = computeOutputInstance(inputValue.get(k),finalWeightThisClass);
-                    listOutputThisClass.add(outputFinal);
+            for (int j=0;j<numData;j++) {
+                List<Double> listOutputThisInstance = new ArrayList<>();
+                for (int k=0;k<numClasses;k++) {
+                    Double outputFinalThisClass = computeOutputInstance(inputValue.get(j),finalNewWeight.get(k));
+                    listOutputThisInstance.add(outputFinalThisClass);
                 }
-                Collections.sort(listOutputThisClass);
-                Double finalOutputThisInstance = listOutputThisClass.get(numClasses-1);
-                errorToTarget.add(computeErrorThisInstance(getTrueClassIndex(j), finalOutputThisInstance));
+                Collections.sort(listOutputThisInstance);
+                Double finalOutputThisInstance = listOutputThisInstance.get(numClasses-1);
+                Double finalErrorThisInstance = computeErrorThisInstance(getTrueClassIndex(j), finalOutputThisInstance);
+                errorToTarget.add(finalErrorThisInstance);
             }
             // Hitung MSE Error epoch ini
             double mseValue = computeEpochError(errorToTarget);
