@@ -150,7 +150,7 @@ public class Util {
                     data.setClassIndex(data.numAttributes()-1);
                     batch.setInputData(data);
                     batch.setLearningRate(0.1);
-                    batch.setMomentum(0);
+                    batch.setMomentum(0.5);
                     batch.setNumEpoch(100);
                     batch.setThresholdError(0.001);
 
@@ -163,8 +163,8 @@ public class Util {
                     data.setClassIndex(data.numAttributes()-1);
                     incremental.setInputData(data);
                     incremental.setLearningRate(0.1);
-                    incremental.setMomentum(0);
-                    incremental.setNumEpoch(2);
+                    incremental.setMomentum(0.5);
+                    incremental.setNumEpoch(100);
                     incremental.setThresholdError(0.001);
 
                     classifier = incremental;

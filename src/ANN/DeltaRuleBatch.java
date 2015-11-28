@@ -241,25 +241,11 @@ public class DeltaRuleBatch extends DeltaRule {
         loadOrGenerateInputWeight(false);
         initializeFinalDeltaWeight();
         initializeFinalNewWeight();
-
-       /* Enumeration inst = instances.enumerateInstances();
-        while (inst.hasMoreElements()) {
-            Instance instance = (Instance) inst.nextElement();
-            System.out.println(instance.value(0) + " " + instance.value(1) + " " + instance.value(2) + " " + instance.value(3));
-        } */
         for (int i=0;i<maxEpoch;i++) {
             // Reset semua data yang sudah diisi sebelumnya
             resetDataPerEpoch();
             // Masukkan input weight baru dari epoch sebelumnya
             initializeInputWeightThisEpoch();
-           /* for (int j=0;j<numClasses;j++) {
-                System.out.println("Class : " + (j+1));
-                System.out.println("----------------------------");
-                for (int k=0;k<numData;k++) {
-                    System.out.println(inputWeight.get(j).get(k)[0] + " " + inputWeight.get(j).get(k)[1] + " " + inputWeight.get(j).get(k)[2] + " " + inputWeight.get(j).get(k)[3]);
-                }
-            }
-            System.out.println("================================="); */
             // Proses 1 EPOCH
             for (int j=0;j<numData;j++) {
                 for (int k=0;k<numClasses;k++) {
@@ -275,28 +261,13 @@ public class DeltaRuleBatch extends DeltaRule {
                     newWeight.get(k).add(j,newWeightThisInstance);
                 }
             }
-          /*  for (int j=0;j<numClasses;j++) {
-                System.out.println("Class : " + (j+1));
-                System.out.println("----------------------------");
-                for (int k=0;k<numData;k++) {
-                    System.out.println(deltaWeight.get(j).get(k)[0] + " " + deltaWeight.get(j).get(k)[1] + " " + deltaWeight.get(j).get(k)[2] + " " + deltaWeight.get(j).get(k)[3]);
-                }
-            }
-            System.out.println("================================="); */
             // Compute sum delta weight final one bach
             for (int j=0;j<numClasses;j++) {
                 Double[] sumFinalDeltaWeightThisClass = computeSumFinalDeltaWeight(j);
-                finalDeltaWeight.add(sumFinalDeltaWeightThisClass);
+                finalDeltaWeight.set(j, sumFinalDeltaWeightThisClass);
                 Double[] finalNewWeightThisClass = computeNewWeightInstance(inputWeight.get(j).get(numData-1), sumFinalDeltaWeightThisClass);
-               // System.out.println(finalNewWeightThisClass[0] + " " + finalNewWeightThisClass[1] + " " + finalNewWeightThisClass[2] + " " + finalNewWeightThisClass[3]);
-                finalNewWeight.set(j,finalNewWeightThisClass);
+                finalNewWeight.set(j, finalNewWeightThisClass);
             }
-           /* for (int j=0;j<numClasses;j++) {
-                System.out.println("Class : " + (j+1));
-                System.out.println("-------------------------------");
-                System.out.println(finalNewWeight.get(j)[0] + " " + finalNewWeight.get(j)[1] + " " + finalNewWeight.get(j)[2] + " " + finalNewWeight.get(j)[3]);
-            }
-            System.out.println("================================="); */
             // Isi error to target akhir sebelum menghitung MSE
             for (int j=0;j<numData;j++) {
                 List<Double> listOutputThisInstance = new ArrayList<>();
@@ -311,7 +282,7 @@ public class DeltaRuleBatch extends DeltaRule {
             }
             // Hitung MSE Error epoch ini
             double mseValue = computeEpochError(errorToTarget);
-            System.out.println("Error epoch " + (i+1) + " : " + mseValue);
+            //System.out.println("Error epoch " + (i+1) + " : " + mseValue);
             if (mseValue < threshold) {
                 isConvergent = true;
                 break;
@@ -320,12 +291,30 @@ public class DeltaRuleBatch extends DeltaRule {
     }
 
     public double classifyInstance(Instance instance) {
+        // Masukkan input value tiap attribute pada instance
         Double[] inputValue = new Double[numAttributes-1];
         for (int i=0;i<instance.numAttributes()-1;i++) {
             inputValue[i] = instance.value(i);
         }
-
-        return 0;
+        // Hitung output setiap neuron, cari yang terbesar
+        List<Double> outputEachNeuron = new ArrayList<>();
+        List<Double> copyOutputEachNeuron = outputEachNeuron;
+        for (Double[] newWeight : finalNewWeight) {
+            Double outputThisNeuron = computeOutputInstance(inputValue,newWeight);
+            outputEachNeuron.add(outputThisNeuron);
+        }
+        Collections.sort(outputEachNeuron);
+        Double highestOutput = outputEachNeuron.get(numClasses-1);
+        // Cari index kelas dengan nilai output tertinggi
+        int indexClass = 0;
+        for (Double output : copyOutputEachNeuron) {
+            if (output == highestOutput) {
+                break;
+            } else {
+                indexClass++;
+            }
+        }
+        return indexClass;
     }
 
     public static void main(String[] arg) {
