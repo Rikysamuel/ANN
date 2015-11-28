@@ -7,7 +7,7 @@ import weka.core.Instances;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        Util.loadARFF("D:\\weka-3-6\\data\\weather.numeric.arff");
+        Util.loadARFF("D:\\weka-3-6\\data\\weather.nominal.arff");
 //        Util.loadARFF("data/train.arff");
         Util.buildModel("batch");
 

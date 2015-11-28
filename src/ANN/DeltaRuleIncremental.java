@@ -2,6 +2,7 @@ package ANN;
 
 import Util.ActivationClass;
 import Util.Util;
+import com.sun.jmx.snmp.Enumerated;
 import weka.core.Capabilities;
 import weka.core.Instance;
 import weka.core.Instances;
@@ -11,10 +12,7 @@ import weka.filters.supervised.attribute.NominalToBinary;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -249,6 +247,11 @@ public class DeltaRuleIncremental extends DeltaRule {
                     finalNewWeight.set(k, newWeightThisInstance);
                 }
             }
+           /* for (int j=0;j<numClasses;j++) {
+                System.out.println("Class : " + (j+1));
+                System.out.println(finalNewWeight.get(j)[0] + " " + finalNewWeight.get(j)[1] + " " + finalNewWeight.get(j)[2] + " " + finalNewWeight.get(j)[3]);
+            }
+            System.out.println("============================================="); */
             // Isi error to target akhir sebelum menghitung MSE
             for (int j=0;j<numData;j++) {
                 List<Double> listOutputThisInstance = new ArrayList<>();
@@ -279,20 +282,22 @@ public class DeltaRuleIncremental extends DeltaRule {
         }
         // Hitung output setiap neuron, cari yang terbesar
         List<Double> outputEachNeuron = new ArrayList<>();
-        List<Double> copyOutputEachNeuron = outputEachNeuron;
         for (Double[] newWeight : finalNewWeight) {
+            // System.out.println(newWeight[0] + " " + newWeight[1] + " " + newWeight[2] + " " + newWeight[3]);
             Double outputThisNeuron = computeOutputInstance(inputValue,newWeight);
             outputEachNeuron.add(outputThisNeuron);
         }
-        Collections.sort(outputEachNeuron);
-        Double highestOutput = outputEachNeuron.get(numClasses-1);
-        // Cari index kelas dengan nilai output tertinggi
+        for (Double output : outputEachNeuron) {
+            System.out.println("Output : " + output);
+        }
+        System.out.println("==============================================");
+        // Cari index kelas dengan output tertinggi
         int indexClass = 0;
-        for (Double output : copyOutputEachNeuron) {
-            if (output == highestOutput) {
-                break;
-            } else {
-                indexClass++;
+        Double maxOutput = outputEachNeuron.get(0);
+        for (int i=1;i<outputEachNeuron.size();i++) {
+            if (outputEachNeuron.get(i) > maxOutput) {
+                indexClass = i;
+                maxOutput = outputEachNeuron.get(i);
             }
         }
         return indexClass;
@@ -301,5 +306,14 @@ public class DeltaRuleIncremental extends DeltaRule {
     public static void main(String[] arg) {
         Util.loadARFF("D:\\weka-3-6\\data\\delta_rule_1.arff");
         Util.buildModel("incremental");
+       /* Enumeration inst = Util.getData().enumerateInstances();
+        while (inst.hasMoreElements()) {
+            Instance instance = (Instance) inst.nextElement();
+            try {
+                System.out.println(Util.getClassifier().classifyInstance(instance));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } */
     }
 }
