@@ -7,9 +7,9 @@ import weka.core.Instances;
 public class Main {
 
     public static void main(String[] args) throws Exception {
-        Util.loadARFF("D:\\weka-3-6\\data\\weather.nominal.arff");
+        Util.loadARFF("D:\\weka-3-6\\data\\iris.arff");
 //        Util.loadARFF("data/train.arff");
-        Util.buildModel("batch");
+        Util.buildModel("incremental");
 
 //        Util.loadARFF("data/test.weather.numeric.arff");
 //        Instances test = Util.setNominalToBinary(Util.getData());

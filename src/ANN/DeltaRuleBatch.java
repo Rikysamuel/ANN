@@ -304,7 +304,7 @@ public class DeltaRuleBatch extends DeltaRule {
         // Hitung output setiap neuron, cari yang terbesar
         List<Double> outputEachNeuron = new ArrayList<>();
         for (Double[] newWeight : finalNewWeight) {
-           // System.out.println(newWeight[0] + " " + newWeight[1] + " " + newWeight[2] + " " + newWeight[3]);
+           // System.out.println(newWeight[0] + " " + newWeight[1] + " " + newWeight[2] + " " + newWeight[3])
             Double outputThisNeuron = computeOutputInstance(inputValue,newWeight);
             outputEachNeuron.add(outputThisNeuron);
         }
@@ -325,7 +325,7 @@ public class DeltaRuleBatch extends DeltaRule {
     }
 
     public static void main(String[] arg) {
-        Util.loadARFF("D:\\weka-3-6\\data\\iris.arff");
+        Util.loadARFF("D:\\weka-3-6\\data\\weather.nominal.arff");
         Util.buildModel("batch");
         Enumeration inst = Util.getData().enumerateInstances();
         while (inst.hasMoreElements()) {
