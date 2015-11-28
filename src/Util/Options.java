@@ -9,8 +9,8 @@ public class Options {
     public static double biasValue;
     /* the bias weight */
     public static double biasWeight;
-    /* the weight initial value */
-    public static double initWeight;
+    /* the weight initial value, -1 means random to MLP */
+    public static double initWeight = -1;
     /* num of hidden neuron, if algorithm used is multi layer perceptron*/
     public static int numOfHiddenNeuron;
     /* momentum value */

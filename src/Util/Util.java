@@ -289,11 +289,10 @@ public class Util {
     /**
      * show learning statistic result by percentage split
      * @param data training data
-     * @param attributeIndices attribute number to train
      * @param trainPercent percentage of the training data
      * @param Classifier model
      */
-    public static void PercentageSplit(Instances data, String attributeIndices, double trainPercent, String Classifier) {
+    public static void PercentageSplit(Instances data, double trainPercent, String Classifier) {
         try {
             int trainSize = (int) Math.round(data.numInstances()* trainPercent / 100);
             int testSize = data.numInstances() - trainSize;
@@ -307,8 +306,6 @@ public class Util {
 
             switch (Classifier.toLowerCase()) {
                 case "mlp" :
-                    data = Util.setNominalToBinary(data);
-                    data = Util.useNormalization(data);
                     classifier = new BackPropagation(data);
                     break;
                 case "batch" :
