@@ -151,7 +151,7 @@ public class Util {
                     batch.setInputData(data);
                     batch.setLearningRate(0.1);
                     batch.setMomentum(0);
-                    batch.setNumEpoch(100);
+                    batch.setNumEpoch(2);
                     batch.setThresholdError(0.001);
 
                     classifier = batch;
@@ -164,7 +164,7 @@ public class Util {
                     incremental.setInputData(data);
                     incremental.setLearningRate(0.1);
                     incremental.setMomentum(0);
-                    incremental.setNumEpoch(100);
+                    incremental.setNumEpoch(2);
                     incremental.setThresholdError(0.001);
 
                     classifier = incremental;

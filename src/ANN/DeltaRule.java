@@ -23,7 +23,7 @@ public abstract class DeltaRule extends Classifier {
     /* vector of input weight for neuron */
     List<List<Double[]>> inputWeight;
     /* vector of target value */
-    List<Double> target;
+    List<List<Double>> target;
     /* the result of net function */
     List<List<Double>> output;
 
