@@ -2,6 +2,8 @@ package ANN;
 
 import Util.ActivationClass;
 import Util.Util;
+import com.sun.jmx.snmp.Enumerated;
+import weka.core.Capabilities;
 import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
@@ -10,9 +12,7 @@ import weka.filters.supervised.attribute.NominalToBinary;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -21,13 +21,9 @@ import java.util.logging.Logger;
  */
 public class DeltaRuleIncremental extends DeltaRule {
     /* the final delta weight per epoch */
-    private Double[] finalDeltaWeight;
-    /* list final delta weight per epoch */
-    private List<Double[]> listFinalDeltaWeight;
+    private List<Double[]> finalDeltaWeight;
     /* the final new weight per epoch */
-    private Double[] finalNewWeight;
-    /* list final new weight per epoch */
-    private List<Double[]> listFinalNewWeight;
+    private List<Double[]> finalNewWeight;
 
     public void setNumEpoch(int maxEpoch) {
         super.maxEpoch = maxEpoch;
@@ -52,33 +48,29 @@ public class DeltaRuleIncremental extends DeltaRule {
     /* Default Constructor */
     public DeltaRuleIncremental() {
         super();
-        listFinalDeltaWeight = new ArrayList<>();
-        listFinalNewWeight = new ArrayList<>();
-    }
-
-    public void setNominalToBinary() {
-        NominalToBinary ntb = new NominalToBinary();
-        try {
-            ntb.setInputFormat(inputDataSet);
-            inputDataSet = new Instances(Filter.useFilter(inputDataSet, ntb));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        finalDeltaWeight = new ArrayList<>();
+        finalNewWeight = new ArrayList<>();
     }
 
     @Override
     public void initializeFinalDeltaWeight() {
-        finalDeltaWeight = new Double[numAttributes];
-        for (int i=0;i<numAttributes;i++) {
-            finalDeltaWeight[i] = 0.0;
+        for (int i=0;i<numClasses;i++) {
+            Double[] finalDeltaWeightPerClass = new Double[numAttributes-1];
+            for (int j=0;j<numAttributes-1;j++) {
+                finalDeltaWeightPerClass[j] = 0.0;
+            }
+            finalDeltaWeight.add(finalDeltaWeightPerClass);
         }
     }
 
     @Override
     public void initializeFinalNewWeight() {
-        finalNewWeight = new Double[numAttributes];
-        for (int i=0;i<numAttributes;i++) {
-            finalNewWeight[i] = 0.0;
+        for (int i=0;i<numClasses;i++) {
+            Double[] finalNewWeightPerClass = new Double[numAttributes-1];
+            for (int j=0;j<numAttributes-1;j++) {
+                finalNewWeightPerClass[j] = 0.0;
+            }
+            finalNewWeight.add(finalNewWeightPerClass);
         }
     }
 
@@ -88,8 +80,8 @@ public class DeltaRuleIncremental extends DeltaRule {
         numAttributes = instances.numAttributes();
         for (int i=0;i<numData;i++) {
             Instance thisInstance = instances.instance(i);
-            Double[] listInput = new Double[numAttributes];
-            for (int j=0;j<numAttributes;j++) {
+            Double[] listInput = new Double[numAttributes-1];
+            for (int j=0;j<numAttributes-1;j++) {
                 listInput[j] = thisInstance.value(j);
             }
             inputValue.add(listInput);
@@ -98,26 +90,38 @@ public class DeltaRuleIncremental extends DeltaRule {
 
     @Override
     public void loadOrGenerateInputWeight(boolean isRandom) {
-        // Khusus delta incremental, hanya mengisi 1 input weight
-        Double newWeight[] = new Double[numAttributes];
-        if (isRandom) {
-            Random random = new Random();
-            for (int i = 0; i < numAttributes; i++) {
-                newWeight[i] = (double) random.nextInt(1);
+        for (int i=0;i<numClasses;i++) {
+            List<Double[]> listInputWeightPerClass = new ArrayList<>();
+            for (int j=0;j<numData;j++) {
+                Double[] inputWeightPerData = new Double[numAttributes-1];
+                for (int k=0;k<numAttributes-1;k++) {
+                    if (isRandom) {
+                        Random random = new Random();
+                        inputWeightPerData[k] = (double) random.nextInt(1);
+                    } else {
+                        inputWeightPerData[k] = 0.0;
+                    }
+                }
+                listInputWeightPerClass.add(inputWeightPerData);
             }
-        } else {
-            for (int i = 0; i < numAttributes; i++) {
-                newWeight[i] = 0.0;
-            }
+            inputWeight.add(listInputWeightPerClass);
         }
-        inputWeight.add(0,newWeight);
     }
 
     @Override
     public void loadTargetFromInstances(Instances instances) {
         int numInstance = instances.numInstances();
-        for (int i=0;i<numInstance;i++) {
-            target.add(instances.instance(i).classValue());
+        numClasses = instances.numClasses();
+        for (int i=0;i<numClasses;i++) {
+            List<Double> listTargetThisClass = new ArrayList<>();
+            for (int j=0;j<numInstance;j++) {
+                if (instances.instance(j).classValue() == (double) i) {
+                    listTargetThisClass.add(1.0);
+                } else {
+                    listTargetThisClass.add(0.0);
+                }
+            }
+            target.add(listTargetThisClass);
         }
     }
 
@@ -131,23 +135,23 @@ public class DeltaRuleIncremental extends DeltaRule {
     }
 
     @Override
-    public double computeOutputInstance(Double[] inputValueThisInstance, Double[] inputWeightThisInstance) {
+    public Double computeOutputInstance(Double[] inputValueThisInstance, Double[] inputWeightThisInstance) {
         double sumNet = 0.0;
-        for (int k=0;k<numAttributes;k++) {
+        for (int k=0;k<numAttributes-1;k++) {
             sumNet += inputValueThisInstance[k] * inputWeightThisInstance[k];
         }
-        return ActivationClass.sigmoid(sumNet);
+        return sumNet;
     }
 
     @Override
-    public Double[] computeDeltaWeightInstance(Double[] inputValueThisInstance, double errorThisInstance, int indexData) {
-        Double[] deltaWeightThisInstance = new Double[numAttributes];
-        for (int k=0;k<numAttributes;k++) {
+    public Double[] computeDeltaWeightInstance(Double[] inputValueThisInstance, Double errorThisInstance, int indexData, int neuronOutputIndex) {
+        Double[] deltaWeightThisInstance = new Double[numAttributes-1];
+        for (int k=0;k<numAttributes-1;k++) {
             double previousDeltaWeightThisAttribute;
             if (indexData > 0) {
-                previousDeltaWeightThisAttribute = deltaWeight.get(indexData-1)[k];
+                previousDeltaWeightThisAttribute = deltaWeight.get(neuronOutputIndex).get(indexData-1)[k];
             } else {
-                previousDeltaWeightThisAttribute = finalDeltaWeight[k];
+                previousDeltaWeightThisAttribute = finalDeltaWeight.get(neuronOutputIndex)[k];
             }
             deltaWeightThisInstance[k] = learningRate * inputValueThisInstance[k] * errorThisInstance + momentum * previousDeltaWeightThisAttribute;
         }
@@ -156,19 +160,62 @@ public class DeltaRuleIncremental extends DeltaRule {
 
     @Override
     public Double[] computeNewWeightInstance(Double[] inputWeightThisInstance, Double[] deltaWeightThisInstance) {
-        Double[] newWeightThisInstance = new Double[numAttributes];
-        for (int k=0;k<numAttributes;k++) {
+        Double[] newWeightThisInstance = new Double[numAttributes-1];
+        for (int k=0;k<numAttributes-1;k++) {
             newWeightThisInstance[k] = deltaWeightThisInstance[k] + inputWeightThisInstance[k];
         }
         return newWeightThisInstance;
     }
 
-    public void initializeInputWeightThisIteration(int indexData) {
-        Double[] inputWeightThisIteration = new Double[numAttributes];
-        for (int j = 0; j < numAttributes; j++) {
-            inputWeightThisIteration[j] = finalNewWeight[j];
+    @Override
+    public Double computeErrorThisInstance(Double targetOutputPerNeuron, Double outputPerNeuron) {
+        return (targetOutputPerNeuron-outputPerNeuron);
+    }
+
+    public Capabilities getCapabilities() {
+        Capabilities result = super.getCapabilities();
+        result.disableAll();
+        result.enable(Capabilities.Capability.NOMINAL_ATTRIBUTES);
+        result.enable(Capabilities.Capability.NUMERIC_ATTRIBUTES);
+        result.enable(Capabilities.Capability.MISSING_VALUES);
+        result.enable(Capabilities.Capability.NOMINAL_CLASS);
+        return result;
+    }
+
+    public void initializeInputWeightThisIteration(int outputNeuronIndex) {
+        List<Double[]> listInputWeightPerClass = new ArrayList<>();
+        for (int j=0;j<numData;j++) {
+            Double[] inputWeightPerIteration = new Double[numAttributes-1];
+            for (int k=0;k<numAttributes-1;k++) {
+                inputWeightPerIteration[k] = finalNewWeight.get(outputNeuronIndex)[k];
+            }
+            listInputWeightPerClass.add(inputWeightPerIteration);
         }
-        inputWeight.add(indexData,inputWeightThisIteration);
+        inputWeight.add(outputNeuronIndex,listInputWeightPerClass);
+    }
+
+    public Double getTrueClassIndex(int instanceIndex) {
+        Double trueClassIndex = 0.0;
+        for (int i=0;i<numClasses;i++) {
+            List<Double> listTargetPerClass = target.get(i);
+            if (listTargetPerClass.get(instanceIndex) == 1) {
+                trueClassIndex = (double) i;
+            }
+        }
+        return trueClassIndex;
+    }
+
+    public void resetDataPerEpoch() {
+        // Reset isi dari delta weight dan new weight
+        output.clear();
+        errorToTarget.clear();
+        inputWeight.clear();
+        deltaWeight.clear();
+        newWeight.clear();
+        for (int j=0;j<numClasses;j++) {
+            deltaWeight.add(new ArrayList<>());
+            newWeight.add(new ArrayList<>());
+        }
     }
 
     @Override
@@ -180,49 +227,93 @@ public class DeltaRuleIncremental extends DeltaRule {
         initializeFinalNewWeight();
         for (int i=0;i<maxEpoch;i++) {
             // Reset isi dari delta weight dan new weight
-            deltaWeight.clear();
-            newWeight.clear();
-            inputWeight.clear();
-            output.clear();
-            errorToTarget.clear();
+            resetDataPerEpoch();
             // Proses 1 EPOCH
             for (int j=0;j<numData;j++) {
-                // Inisialisasi input weight baru untuk iterasi ini
-                initializeInputWeightThisIteration(j);
-                // Hitung output data sementara
-                double tempOutputThisInstance = computeOutputInstance(inputValue.get(j),inputWeight.get(j));
-                // Hitung (target - output) simpan di list sementara
-                double tempErrorThisInstance = target.get(j) - tempOutputThisInstance;
-                // Hitung deltaweight instance ini di epoch ini
-                Double[] deltaWeightThisInstance = computeDeltaWeightInstance(inputValue.get(j),tempErrorThisInstance,j);
-                deltaWeight.add(deltaWeightThisInstance);
-                // Hitung newweight instance ini di epoch ini
-                Double[] newWeightThisInstance = computeNewWeightInstance(inputWeight.get(j),deltaWeightThisInstance);
-                newWeight.add(newWeightThisInstance);
-                // Masukkan final delta weight dan new weight untuk iterasi ini
-                finalDeltaWeight = deltaWeightThisInstance;
-                finalNewWeight = newWeightThisInstance;
+                for (int k=0;k<numClasses;k++) {
+                    // Masukkan input weight dari iterasi sebelumnya
+                    initializeInputWeightThisIteration(k);
+                    // Hitung output data sementara
+                    double tempOutputThisInstance = computeOutputInstance(inputValue.get(j), inputWeight.get(k).get(j));
+                    // Hitung (target - output) sementara
+                    double tempErrorThisInstance = computeErrorThisInstance(target.get(k).get(j), tempOutputThisInstance);
+                    // Hitung deltaweight instance ini di epoch ini
+                    Double[] deltaWeightThisInstance = computeDeltaWeightInstance(inputValue.get(j),tempErrorThisInstance,j,k);
+                    deltaWeight.get(k).add(j, deltaWeightThisInstance);
+                    finalDeltaWeight.set(k, deltaWeightThisInstance);
+                    // Hitung newweight instance ini di epoch ini
+                    Double[] newWeightThisInstance = computeNewWeightInstance(inputWeight.get(k).get(j), deltaWeightThisInstance);
+                    newWeight.get(k).add(j, newWeightThisInstance);
+                    finalNewWeight.set(k, newWeightThisInstance);
+                }
             }
-            // Add last final new weight this epoch into list
-            listFinalDeltaWeight.add(finalDeltaWeight);
-            // Calculate final output for each instance
-            listFinalNewWeight.add(finalNewWeight);
+           /* for (int j=0;j<numClasses;j++) {
+                System.out.println("Class : " + (j+1));
+                System.out.println(finalNewWeight.get(j)[0] + " " + finalNewWeight.get(j)[1] + " " + finalNewWeight.get(j)[2] + " " + finalNewWeight.get(j)[3]);
+            }
+            System.out.println("============================================="); */
+            // Isi error to target akhir sebelum menghitung MSE
             for (int j=0;j<numData;j++) {
-                Double outputFinalThisData = computeOutputInstance(inputValue.get(j),finalNewWeight);
-                output.add(j,outputFinalThisData);
-                errorToTarget.add(j,target.get(j)-outputFinalThisData);
+                List<Double> listOutputThisInstance = new ArrayList<>();
+                for (int k=0;k<numClasses;k++) {
+                    Double outputFinalThisClass = computeOutputInstance(inputValue.get(j),finalNewWeight.get(k));
+                    listOutputThisInstance.add(outputFinalThisClass);
+                }
+                Collections.sort(listOutputThisInstance);
+                Double finalOutputThisInstance = listOutputThisInstance.get(numClasses-1);
+                Double finalErrorThisInstance = computeErrorThisInstance(getTrueClassIndex(j), finalOutputThisInstance);
+                errorToTarget.add(finalErrorThisInstance);
             }
             // Hitung MSE Error epoch ini
             double mseValue = computeEpochError(errorToTarget);
-            System.out.println("Error epoch " + (i+1) + " : " + mseValue);
+            //System.out.println("Error epoch " + (i+1) + " : " + mseValue);
             if (mseValue < threshold) {
                 isConvergent = true;
+                break;
             }
         }
+    }
+
+    public double classifyInstance(Instance instance) {
+        // Masukkan input value tiap attribute pada instance
+        Double[] inputValue = new Double[numAttributes-1];
+        for (int i=0;i<instance.numAttributes()-1;i++) {
+            inputValue[i] = instance.value(i);
+        }
+        // Hitung output setiap neuron, cari yang terbesar
+        List<Double> outputEachNeuron = new ArrayList<>();
+        for (Double[] newWeight : finalNewWeight) {
+            // System.out.println(newWeight[0] + " " + newWeight[1] + " " + newWeight[2] + " " + newWeight[3]);
+            Double outputThisNeuron = computeOutputInstance(inputValue,newWeight);
+            outputEachNeuron.add(outputThisNeuron);
+        }
+        for (Double output : outputEachNeuron) {
+            System.out.println("Output : " + output);
+        }
+        System.out.println("==============================================");
+        // Cari index kelas dengan output tertinggi
+        int indexClass = 0;
+        Double maxOutput = outputEachNeuron.get(0);
+        for (int i=1;i<outputEachNeuron.size();i++) {
+            if (outputEachNeuron.get(i) > maxOutput) {
+                indexClass = i;
+                maxOutput = outputEachNeuron.get(i);
+            }
+        }
+        return indexClass;
     }
 
     public static void main(String[] arg) {
         Util.loadARFF("D:\\weka-3-6\\data\\delta_rule_1.arff");
         Util.buildModel("incremental");
+       /* Enumeration inst = Util.getData().enumerateInstances();
+        while (inst.hasMoreElements()) {
+            Instance instance = (Instance) inst.nextElement();
+            try {
+                System.out.println(Util.getClassifier().classifyInstance(instance));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        } */
     }
 }

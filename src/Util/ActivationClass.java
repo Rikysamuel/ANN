@@ -1,6 +1,7 @@
 package Util;
 
 /**
+ * Activation class helper 
  * Created by rikysamuel on 11/20/2015.
  */
 public class ActivationClass {
@@ -11,6 +12,10 @@ public class ActivationClass {
     }
 
     public static double sign(double value) {
+        return (value >= 0) ? 1 : -1;
+    }
+
+    public static double step(double value) {
         return (value >= 0) ? 1 : 0;
     }
 }

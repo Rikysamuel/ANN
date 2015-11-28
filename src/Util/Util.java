@@ -8,6 +8,7 @@ import weka.core.SerializationHelper;
 import weka.core.converters.CSVLoader;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.NominalToBinary;
+import weka.filters.unsupervised.attribute.Normalize;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,11 +19,16 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
+ * Util Helper Class
  * Created by rikysamuel on 11/26/2015.
  */
 public class Util {
     private static Classifier classifier;
     private static Instances data;
+
+    public static void setData(Instances newData) {
+        data = newData;
+    }
 
     public static Instances getData() {
         return data;
@@ -92,12 +98,35 @@ public class Util {
         return data.resample(new Random(seed));
     }
 
+    /**
+     * filter the nominal attribute on the instances into the binary
+     * @param instances the instances
+     * @return new instances
+     */
     public static Instances setNominalToBinary(Instances instances) {
         NominalToBinary ntb = new NominalToBinary();
         Instances newInstances = null;
         try {
             ntb.setInputFormat(instances);
             newInstances = new Instances(Filter.useFilter(instances, ntb));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return newInstances;
+    }
+
+    /**
+     * filter the numeric attribute on be normalized
+     * @param instances the instances
+     * @return new instances
+     */
+    public static Instances useNormalization(Instances instances) {
+        Normalize normalize = new Normalize();
+        Instances newInstances = null;
+        try {
+            normalize.setInputFormat(instances);
+            newInstances = new Instances(Filter.useFilter(instances, normalize));
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -114,38 +143,30 @@ public class Util {
             // Membangun model dan melakukan test
             switch (Classifier.toLowerCase()) {
                 case "mlp" :
-                    BackPropagation bp = new BackPropagation();
-                    data = Util.setNominalToBinary(data);
-                    bp.data = data;
-                    bp.setNumOfInputNeuron();
-                    bp.setBiasValue(1);
-                    bp.setBiasWeight(0.1);
-                    bp.setInitWeight(0.1);
-                    bp.setNumNeuron(2, true); //hidden
-                    bp.setMomentum(0.1);
-                    bp.setLearningRate(0.1);
-                    bp.setNumEpoch(100);
-
-                    classifier = bp;
+                    classifier = new BackPropagation(data);
                     break;
                 case "batch" :
                     DeltaRuleBatch batch = new DeltaRuleBatch();
+                    data = Util.setNominalToBinary(data);
+                    data = Util.useNormalization(data);
+                    data.setClassIndex(data.numAttributes()-1);
                     batch.setInputData(data);
-                    batch.setNominalToBinary();
                     batch.setLearningRate(0.1);
-                    batch.setMomentum(0.1);
-                    batch.setNumEpoch(10);
+                    batch.setMomentum(0.5);
+                    batch.setNumEpoch(100);
                     batch.setThresholdError(0.001);
 
                     classifier = batch;
                     break;
                 case "incremental" :
                     DeltaRuleIncremental incremental = new DeltaRuleIncremental();
+                    data = Util.setNominalToBinary(data);
+                    data = Util.useNormalization(data);
+                    data.setClassIndex(data.numAttributes()-1);
                     incremental.setInputData(data);
-                    incremental.setNominalToBinary();
                     incremental.setLearningRate(0.1);
-                    incremental.setMomentum(0.1);
-                    incremental.setNumEpoch(10);
+                    incremental.setMomentum(0.5);
+                    incremental.setNumEpoch(100);
                     incremental.setThresholdError(0.001);
 
                     classifier = incremental;
@@ -278,11 +299,10 @@ public class Util {
     /**
      * show learning statistic result by percentage split
      * @param data training data
-     * @param attributeIndices attribute number to train
      * @param trainPercent percentage of the training data
      * @param Classifier model
      */
-    public static void PercentageSplit(Instances data, String attributeIndices, double trainPercent, String Classifier) {
+    public static void PercentageSplit(Instances data, double trainPercent, String Classifier) {
         try {
             int trainSize = (int) Math.round(data.numInstances()* trainPercent / 100);
             int testSize = data.numInstances() - trainSize;
@@ -296,7 +316,7 @@ public class Util {
 
             switch (Classifier.toLowerCase()) {
                 case "mlp" :
-                    classifier = new BackPropagation();
+                    classifier = new BackPropagation(data);
                     break;
                 case "batch" :
                     classifier = new DeltaRuleBatch();
