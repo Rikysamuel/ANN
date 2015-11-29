@@ -21,6 +21,6 @@ public class Options {
     public static int maxEpoch;
     /* the MSE threshold */
     public static double MSEthreshold;
-    /*Activation function*/
-    public static String activationFunction;
+    /* activation function */
+    public static String function;
 }

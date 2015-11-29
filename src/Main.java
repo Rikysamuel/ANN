@@ -5,6 +5,7 @@ import weka.core.Instances;
 import javax.swing.text.html.Option;
 
 /**
+ * Main class 
  * Created by rikysamuel on 11/20/2015.
  */
 public class Main {
@@ -17,7 +18,7 @@ public class Main {
         Options.momentum = 0.1;
         Options.learningRate = 0.1;
         Options.maxEpoch = 1000;
-        Options.activationFunction = "sign";
+        Options.function = "sign";
 //        Options.MSEthreshold = 0.3387570349024238;
 
 //        Util.loadARFF("C:\\Program Files (x86)\\Weka-3-7\data\\simple.weather.arff");

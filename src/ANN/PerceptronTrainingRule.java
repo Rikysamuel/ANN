@@ -101,7 +101,7 @@ public class PerceptronTrainingRule extends Classifier {
         setMomentum(Options.momentum);
         setNumEpoch(Options.maxEpoch);
         setThresholdError(Options.MSEthreshold);
-        setActivationFunction(Options.activationFunction); // set activation function
+        setActivationFunction(Options.function); // set activation function
     }
 
     public void setNominalToBinary() {
@@ -284,6 +284,18 @@ public class PerceptronTrainingRule extends Classifier {
         }
     }
 
+    public int indexClassWithHighestOutput(List<Double> outputEachNeuron) {
+        int indexClass = 0;
+        Double maxOutput = outputEachNeuron.get(0);
+        for (int i=1;i<outputEachNeuron.size();i++) {
+            if (outputEachNeuron.get(i) > maxOutput) {
+                indexClass = i;
+                maxOutput = outputEachNeuron.get(i);
+            }
+        }
+        return indexClass;
+    }
+
     @Override
     public void buildClassifier(Instances instances) throws Exception {
         loadInstancesIntoInputValue(instances);
@@ -313,11 +325,6 @@ public class PerceptronTrainingRule extends Classifier {
                     finalNewWeight.set(k, newWeightThisInstance);
                 }
             }
-           /* for (int j=0;j<numClasses;j++) {
-                System.out.println("Class : " + (j+1));
-                System.out.println(finalNewWeight.get(j)[0] + " " + finalNewWeight.get(j)[1] + " " + finalNewWeight.get(j)[2] + " " + finalNewWeight.get(j)[3]);
-            }
-            System.out.println("============================================="); */
             // Isi error to target akhir sebelum menghitung MSE
             for (int j=0;j<numData;j++) {
                 List<Double> listOutputThisInstance = new ArrayList<>();
@@ -325,14 +332,15 @@ public class PerceptronTrainingRule extends Classifier {
                     Double outputFinalThisClass = computeOutputInstance(inputValue.get(j),finalNewWeight.get(k));
                     listOutputThisInstance.add(outputFinalThisClass);
                 }
+                int indexClassWithHighestOutput = indexClassWithHighestOutput(listOutputThisInstance);
                 Collections.sort(listOutputThisInstance);
                 Double finalOutputThisInstance = listOutputThisInstance.get(numClasses-1);
-                Double finalErrorThisInstance = computeErrorThisInstance(getTrueClassIndex(j), finalOutputThisInstance);
+                Double finalErrorThisInstance = computeErrorThisInstance(target.get(indexClassWithHighestOutput).get(j), finalOutputThisInstance);
                 errorToTarget.add(finalErrorThisInstance);
             }
             // Hitung MSE Error epoch ini
             double mseValue = computeEpochError(errorToTarget);
-            //System.out.println("Error epoch " + (i+1) + " : " + mseValue);
+            System.out.println("Error epoch " + (i+1) + " : " + mseValue);
             if (mseValue < threshold) {
                 isConvergent = true;
                 break;
@@ -349,24 +357,10 @@ public class PerceptronTrainingRule extends Classifier {
         // Hitung output setiap neuron, cari yang terbesar
         List<Double> outputEachNeuron = new ArrayList<>();
         for (Double[] newWeight : finalNewWeight) {
-            // System.out.println(newWeight[0] + " " + newWeight[1] + " " + newWeight[2] + " " + newWeight[3]);
             Double outputThisNeuron = computeOutputInstance(inputValue,newWeight);
             outputEachNeuron.add(outputThisNeuron);
         }
-        for (Double output : outputEachNeuron) {
-            System.out.println("Output : " + output);
-        }
-        System.out.println("==============================================");
-        // Cari index kelas dengan output tertinggi
-        int indexClass = 0;
-        Double maxOutput = outputEachNeuron.get(0);
-        for (int i=1;i<outputEachNeuron.size();i++) {
-            if (outputEachNeuron.get(i) > maxOutput) {
-                indexClass = i;
-                maxOutput = outputEachNeuron.get(i);
-            }
-        }
-        return indexClass;
+        return indexClassWithHighestOutput(outputEachNeuron);
     }
 
     public static void main(String[] arg) {
