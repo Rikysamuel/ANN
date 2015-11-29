@@ -8,6 +8,7 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.NominalToBinary;
+import Util.Options;
 
 import java.util.*;
 
@@ -84,7 +85,7 @@ public class PerceptronTrainingRule extends Classifier {
     }
 
     /* Default Constructor */
-    public PerceptronTrainingRule() {
+    public PerceptronTrainingRule(Instances data) {
         finalDeltaWeight = new ArrayList<>();
         finalNewWeight = new ArrayList<>();
         inputValue = new ArrayList<>();
@@ -94,6 +95,13 @@ public class PerceptronTrainingRule extends Classifier {
         errorToTarget = new ArrayList<>();
         deltaWeight = new ArrayList<>();
         newWeight = new ArrayList<>();
+        setInputData(data);
+        setNominalToBinary();
+        setLearningRate(Options.learningRate);
+        setMomentum(Options.momentum);
+        setNumEpoch(Options.maxEpoch);
+        setThresholdError(Options.MSEthreshold);
+        setActivationFunction(Options.activationFunction); // set activation function
     }
 
     public void setNominalToBinary() {
