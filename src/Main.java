@@ -3,6 +3,7 @@ import Util.Options;
 import weka.core.Instances;
 
 /**
+ * Main class 
  * Created by rikysamuel on 11/20/2015.
  */
 public class Main {
@@ -16,6 +17,7 @@ public class Main {
         Options.learningRate = 0.1;
         Options.maxEpoch = 1000;
         Options.MSEthreshold = 0.3387570349024238;
+        Options.function = "sigmoid";
 
 //        Util.loadARFF("data/simple.weather.arff");
  //       Util.loadARFF("data/weather.nominal.arff");
