@@ -8,11 +8,9 @@ import weka.core.Instance;
 import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.NominalToBinary;
+import Util.Options;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by rikysamuel on 11/4/2015.
@@ -87,7 +85,7 @@ public class PerceptronTrainingRule extends Classifier {
     }
 
     /* Default Constructor */
-    public PerceptronTrainingRule() {
+    public PerceptronTrainingRule(Instances data) {
         finalDeltaWeight = new ArrayList<>();
         finalNewWeight = new ArrayList<>();
         inputValue = new ArrayList<>();
@@ -97,6 +95,13 @@ public class PerceptronTrainingRule extends Classifier {
         errorToTarget = new ArrayList<>();
         deltaWeight = new ArrayList<>();
         newWeight = new ArrayList<>();
+        setInputData(data);
+        setNominalToBinary();
+        setLearningRate(Options.learningRate);
+        setMomentum(Options.momentum);
+        setNumEpoch(Options.maxEpoch);
+        setThresholdError(Options.MSEthreshold);
+        setActivationFunction(Options.function); // set activation function
     }
 
     public void setNominalToBinary() {
@@ -337,7 +342,7 @@ public class PerceptronTrainingRule extends Classifier {
             }
             // Hitung MSE Error epoch ini
             double mseValue = computeEpochError(errorToTarget);
-            System.out.println("Error epoch " + (i+1) + " : " + mseValue);
+//            System.out.println("Error epoch " + (i+1) + " : " + mseValue);
             if (mseValue < threshold) {
                 isConvergent = true;
                 break;
@@ -363,6 +368,15 @@ public class PerceptronTrainingRule extends Classifier {
     public static void main(String[] arg) {
         Util.loadARFF("C:\\Program Files (x86)\\Weka-3-7\\data\\weather.numeric.arff");
         Util.buildModel("perceptron");
+        Enumeration inst = Util.getData().enumerateInstances();
+        while (inst.hasMoreElements()) {
+            Instance instance = (Instance) inst.nextElement();
+            try {
+                System.out.println(Util.getClassifier().classifyInstance(instance));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }

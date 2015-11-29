@@ -172,16 +172,7 @@ public class Util {
                     classifier = incremental;
                     break;
                 case "perceptron" :
-                    PerceptronTrainingRule ptr = new PerceptronTrainingRule();
-                    ptr.setInputData(data);
-                    ptr.setNominalToBinary();
-                    ptr.setLearningRate(0.1);
-                    ptr.setMomentum(0.1);
-                    ptr.setNumEpoch(10);
-                    ptr.setThresholdError(0.001);
-                    ptr.setActivationFunction("sign"); // set activation function
-
-                    classifier = ptr;
+                    classifier = new PerceptronTrainingRule(data);
                     break;
                 default :
                     break;
@@ -325,7 +316,7 @@ public class Util {
                     classifier = new DeltaRuleIncremental();
                     break;
                 case "perceptron" :
-                    classifier = new PerceptronTrainingRule();
+                    classifier = new PerceptronTrainingRule(data);
                     break;
                 default :
                     break;

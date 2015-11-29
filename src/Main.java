@@ -2,6 +2,8 @@ import Util.Util;
 import Util.Options;
 import weka.core.Instances;
 
+import javax.swing.text.html.Option;
+
 /**
  * Main class 
  * Created by rikysamuel on 11/20/2015.
@@ -16,27 +18,29 @@ public class Main {
         Options.momentum = 0.1;
         Options.learningRate = 0.1;
         Options.maxEpoch = 1000;
-        Options.MSEthreshold = 0.3387570349024238;
-        Options.function = "sigmoid";
+        Options.function = "sign";
+//        Options.MSEthreshold = 0.3387570349024238;
 
-//        Util.loadARFF("data/simple.weather.arff");
- //       Util.loadARFF("data/weather.nominal.arff");
-//        Util.loadARFF("data/weather.numeric.arff");
-//        Util.loadARFF("data/iris.arff");
-//        Util.loadARFF("data/iris.2D.arff");
 
         Util.loadARFF("D:\\weka-3-6\\data\\weather.nominal.arff");
      //   Util.loadARFF("D:\\weka-3-6\\data\\weather.numeric.arff");
       //  Util.loadARFF("D:\\weka-3-6\\data\\iris.arff");
       //  Util.loadARFF("D:\\weka-3-6\\data\\iris.2D.arff");
 
+//        Util.loadARFF("C:\\Program Files (x86)\\Weka-3-7\data\\simple.weather.arff");
+//        Util.loadARFF("C:\\Program Files (x86)\\Weka-3-7\\data\\weather.nominal.arff");
+//        Util.loadARFF("C:\\Program Files (x86)\\Weka-3-7\\data\\weather.numeric.arff");
+//        Util.loadARFF("C:\\Program Files (x86)\\Weka-3-7\\data\\iris.arff");
+ //       Util.loadARFF("C:\\Program Files (x86)\\Weka-3-7\\data\\iris.2D.arff");
+
+
         Instances data = Util.setNominalToBinary(Util.getData());
         data = Util.useNormalization(data);
         Util.setData(data);
 
-        Util.buildModel("batch");
+        Util.buildModel("perceptron");
 
-      //  Util.FullSchema(data);
+//        Util.FullSchema(data);
         Util.FoldSchema(data, 10);
        // Util.PercentageSplit(data, 66.67, "batch");
     }
