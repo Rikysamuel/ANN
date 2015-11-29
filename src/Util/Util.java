@@ -152,7 +152,7 @@ public class Util {
                     data.setClassIndex(data.numAttributes()-1);
                     batch.setInputData(data);
                     batch.setLearningRate(0.1);
-                    batch.setMomentum(0);
+                    batch.setMomentum(0.5);
                     batch.setNumEpoch(100);
                     batch.setThresholdError(0.001);
 
@@ -165,13 +165,23 @@ public class Util {
                     data.setClassIndex(data.numAttributes()-1);
                     incremental.setInputData(data);
                     incremental.setLearningRate(0.1);
-                    incremental.setMomentum(0);
+                    incremental.setMomentum(0.5);
                     incremental.setNumEpoch(100);
                     incremental.setThresholdError(0.001);
 
                     classifier = incremental;
                     break;
                 case "perceptron" :
+                    PerceptronTrainingRule ptr = new PerceptronTrainingRule();
+                    ptr.setInputData(data);
+                    ptr.setNominalToBinary();
+                    ptr.setLearningRate(0.1);
+                    ptr.setMomentum(0.1);
+                    ptr.setNumEpoch(10);
+                    ptr.setThresholdError(0.001);
+                    ptr.setActivationFunction("sign"); // set activation function
+
+                    classifier = ptr;
                     break;
                 default :
                     break;
