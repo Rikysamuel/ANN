@@ -235,10 +235,8 @@ public class DeltaRuleBatch extends DeltaRule {
         for (int i=0;i<maxEpoch;i++) {
             // Reset semua data yang sudah diisi sebelumnya
             resetDataPerEpoch();
-            System.out.println("Final new weight size : " + finalNewWeight.size());
             // Masukkan input weight baru dari epoch sebelumnya
             initializeInputWeightThisEpoch();
-            System.out.println("Final new weight size : " + finalNewWeight.size());
             // Proses 1 EPOCH
             for (int j=0;j<numData;j++) {
                 for (int k=0;k<numClasses;k++) {
@@ -274,7 +272,6 @@ public class DeltaRuleBatch extends DeltaRule {
                 Double finalErrorThisInstance = computeErrorThisInstance(target.get(indexClassWithHighestOutput).get(j), finalOutputThisInstance);
                 errorToTarget.add(finalErrorThisInstance);
             }
-            System.out.println("Final new weight size : " + finalNewWeight.size());
             // Hitung MSE Error epoch ini
             double mseValue = computeEpochError(errorToTarget);
             System.out.println("Error epoch " + (i+1) + " : " + mseValue);
