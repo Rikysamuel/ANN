@@ -23,6 +23,7 @@ public class BackPropagation extends Classifier {
     private double biasWeight;
     private double initWeight;
     private double MSEThreshold;
+    private String activationFunction;
 
     private Instances data;
     private List<Double> error;
@@ -36,13 +37,14 @@ public class BackPropagation extends Classifier {
 
         initWeight = Options.initWeight;
         if (Double.compare(initWeight, -1) == 0) {
-            initWeight = new Random().nextDouble();
+            initWeight = new Random().nextDouble() - 0.5;
         }
         numOfHiddenNeuron = Options.numOfHiddenNeuron;
         momentum = Options.momentum;
         learningRate = Options.learningRate;
         numEpoch = Options.maxEpoch;
         MSEThreshold = Options.MSEthreshold;
+        activationFunction = Options.function;
 
         neurons = new HashMap<>();
         weights = new HashMap<>();
@@ -64,7 +66,7 @@ public class BackPropagation extends Classifier {
 
     /**
      * set the bias value, add to neurons container
-     * @param biasValue
+     * @param biasValue the bias input value
      */
     public void setBiasValue(double biasValue) {
         SortedMap<Integer, Double> temp = new TreeMap<>();
@@ -101,7 +103,7 @@ public class BackPropagation extends Classifier {
 
     /**
      * invoke setNumNeuron method for method call simplicity
-     * @param numNeuron
+     * @param numNeuron the number of neuron in hidden layer
      */
     public void setHiddenNeuron(int numNeuron) {
         setNumNeuron(numNeuron, true);
@@ -242,6 +244,20 @@ public class BackPropagation extends Classifier {
     }
 
     /**
+     * Activate Activation function
+     * @param value value to compute
+     * @return activated value
+     */
+    private double activationFunction(double value) {
+        switch (activationFunction) {
+            case "sigmoid" : return ActivationClass.sigmoid(value);
+            case "sign" : return ActivationClass.sign(value);
+            case "step" : return ActivationClass.step(value);
+            default : return ActivationClass.sigmoid(value);
+        }
+    }
+
+    /**
      * find the weight between 2 nodes
      * @param node1 first node
      * @param node2 second node
@@ -270,13 +286,13 @@ public class BackPropagation extends Classifier {
         n.outValue = temp;
 
         for (int i = 0; i < data.numInstances(); i++) {
-            n.input.put(i, ActivationClass.sigmoid(temp));
+            n.input.put(i, activationFunction(temp));
         }
         neurons.put(node, n);
 
         for (Integer ref : refsAfter) {
             n = new Neuron(neurons.get(ref));
-            n.input.put(0, ActivationClass.sigmoid(temp));
+            n.input.put(0, activationFunction(temp));
             neurons.put(ref, n);
         }
 
@@ -473,8 +489,8 @@ public class BackPropagation extends Classifier {
             }
         }
 
-//        printNeuron();
-//        printWeight();
+        printNeuron();
+        printWeight();
     }
 
     public double classifyInstance(Instance instance) {
@@ -504,7 +520,7 @@ public class BackPropagation extends Classifier {
                 }
             }
             neurons.get(aHiddNeuron).input = new TreeMap<>();
-            neurons.get(aHiddNeuron).input.put(0, ActivationClass.sigmoid(weight));
+            neurons.get(aHiddNeuron).input.put(0, activationFunction(weight));
         }
 
         for (Integer anOutNeuron : outNeuron) {
@@ -520,7 +536,7 @@ public class BackPropagation extends Classifier {
                 }
             }
             neurons.get(anOutNeuron).input = new TreeMap<>();
-            neurons.get(anOutNeuron).input.put(0, ActivationClass.sigmoid(weight));
+            neurons.get(anOutNeuron).input.put(0, activationFunction(weight));
         }
 
         for (Integer out : outNeuron) {
