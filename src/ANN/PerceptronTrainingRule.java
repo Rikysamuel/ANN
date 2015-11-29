@@ -340,7 +340,7 @@ public class PerceptronTrainingRule extends Classifier {
             }
             // Hitung MSE Error epoch ini
             double mseValue = computeEpochError(errorToTarget);
-            System.out.println("Error epoch " + (i+1) + " : " + mseValue);
+//            System.out.println("Error epoch " + (i+1) + " : " + mseValue);
             if (mseValue < threshold) {
                 isConvergent = true;
                 break;

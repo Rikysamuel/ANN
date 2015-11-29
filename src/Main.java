@@ -34,7 +34,7 @@ public class Main {
         Util.buildModel("perceptron");
 
 //        Util.FullSchema(data);
-//        Util.FoldSchema(data, 10);
-        Util.PercentageSplit(data, 66.67, "perceptron");
+        Util.FoldSchema(data, 10);
+//        Util.PercentageSplit(data, 66.67, "perceptron");
     }
 }
