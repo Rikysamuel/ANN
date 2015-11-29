@@ -9,10 +9,7 @@ import weka.core.Instances;
 import weka.filters.Filter;
 import weka.filters.supervised.attribute.NominalToBinary;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Random;
+import java.util.*;
 
 /**
  * Created by rikysamuel on 11/4/2015.
@@ -367,6 +364,15 @@ public class PerceptronTrainingRule extends Classifier {
     public static void main(String[] arg) {
         Util.loadARFF("C:\\Program Files (x86)\\Weka-3-7\\data\\weather.numeric.arff");
         Util.buildModel("perceptron");
+        Enumeration inst = Util.getData().enumerateInstances();
+        while (inst.hasMoreElements()) {
+            Instance instance = (Instance) inst.nextElement();
+            try {
+                System.out.println(Util.getClassifier().classifyInstance(instance));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
     }
 
 }
