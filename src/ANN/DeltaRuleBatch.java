@@ -210,17 +210,6 @@ public class DeltaRuleBatch extends DeltaRule {
         return (targetOutputPerNeuron-outputPerNeuron);
     }
 
-    public Double getTrueClassIndex(int instanceIndex) {
-        Double trueClassIndex = 0.0;
-        for (int i=0;i<numClasses;i++) {
-            List<Double> listTargetPerClass = target.get(i);
-            if (listTargetPerClass.get(instanceIndex) == 1) {
-                trueClassIndex = (double) i;
-            }
-        }
-        return trueClassIndex;
-    }
-
     public void resetDataPerEpoch() {
         // Reset isi dari delta weight dan new weight
         output.clear();
@@ -268,11 +257,6 @@ public class DeltaRuleBatch extends DeltaRule {
                 Double[] finalNewWeightThisClass = computeNewWeightInstance(inputWeight.get(j).get(numData-1), sumFinalDeltaWeightThisClass);
                 finalNewWeight.set(j, finalNewWeightThisClass);
             }
-          /*  for (int j=0;j<numClasses;j++) {
-                System.out.println("Class : " + (j+1));
-                System.out.println(finalNewWeight.get(j)[0] + " " + finalNewWeight.get(j)[1] + " " + finalNewWeight.get(j)[2] + " " + finalNewWeight.get(j)[3]);
-            }
-            System.out.println("============================================="); */
             // Isi error to target akhir sebelum menghitung MSE
             for (int j=0;j<numData;j++) {
                 List<Double> listOutputThisInstance = new ArrayList<>();
@@ -280,14 +264,15 @@ public class DeltaRuleBatch extends DeltaRule {
                     Double outputFinalThisClass = computeOutputInstance(inputValue.get(j),finalNewWeight.get(k));
                     listOutputThisInstance.add(outputFinalThisClass);
                 }
+                int indexClassWithHighestOutput = indexClassWithHighestOutput(listOutputThisInstance);
                 Collections.sort(listOutputThisInstance);
                 Double finalOutputThisInstance = listOutputThisInstance.get(numClasses-1);
-                Double finalErrorThisInstance = computeErrorThisInstance(getTrueClassIndex(j), finalOutputThisInstance);
+                Double finalErrorThisInstance = computeErrorThisInstance(target.get(indexClassWithHighestOutput).get(j), finalOutputThisInstance);
                 errorToTarget.add(finalErrorThisInstance);
             }
             // Hitung MSE Error epoch ini
             double mseValue = computeEpochError(errorToTarget);
-           // System.out.println("Error epoch " + (i+1) + " : " + mseValue);
+            System.out.println("Error epoch " + (i+1) + " : " + mseValue);
             if (mseValue < threshold) {
                 isConvergent = true;
                 break;
@@ -295,24 +280,7 @@ public class DeltaRuleBatch extends DeltaRule {
         }
     }
 
-    public double classifyInstance(Instance instance) {
-        // Masukkan input value tiap attribute pada instance
-        Double[] inputValue = new Double[numAttributes-1];
-        for (int i=0;i<instance.numAttributes()-1;i++) {
-            inputValue[i] = instance.value(i);
-        }
-        // Hitung output setiap neuron, cari yang terbesar
-        List<Double> outputEachNeuron = new ArrayList<>();
-        for (Double[] newWeight : finalNewWeight) {
-           // System.out.println(newWeight[0] + " " + newWeight[1] + " " + newWeight[2] + " " + newWeight[3])
-            Double outputThisNeuron = computeOutputInstance(inputValue,newWeight);
-            outputEachNeuron.add(outputThisNeuron);
-        }
-        for (Double output : outputEachNeuron) {
-            System.out.println("Output : " + output);
-        }
-        System.out.println("==============================================");
-        // Cari index kelas dengan output tertinggi
+    public int indexClassWithHighestOutput(List<Double> outputEachNeuron) {
         int indexClass = 0;
         Double maxOutput = outputEachNeuron.get(0);
         for (int i=1;i<outputEachNeuron.size();i++) {
@@ -324,10 +292,26 @@ public class DeltaRuleBatch extends DeltaRule {
         return indexClass;
     }
 
+    public double classifyInstance(Instance instance) {
+        // Masukkan input value tiap attribute pada instance
+        Double[] inputValue = new Double[numAttributes-1];
+        for (int i=0;i<instance.numAttributes()-1;i++) {
+            inputValue[i] = instance.value(i);
+        }
+        // Hitung output setiap neuron, cari yang terbesar
+        List<Double> outputEachNeuron = new ArrayList<>();
+        for (Double[] newWeight : finalNewWeight) {
+            Double outputThisNeuron = computeOutputInstance(inputValue,newWeight);
+            outputEachNeuron.add(outputThisNeuron);
+        }
+        return indexClassWithHighestOutput(outputEachNeuron);
+    }
+
     public static void main(String[] arg) {
-        Util.loadARFF("D:\\weka-3-6\\data\\weather.nominal.arff");
+        Util.loadARFF("D:\\weka-3-6\\data\\weather.numeric.arff");
         Util.buildModel("batch");
-        Enumeration inst = Util.getData().enumerateInstances();
+       // Util.FoldSchema(Util.getData(),10);
+        /*Enumeration inst = Util.getData().enumerateInstances();
         while (inst.hasMoreElements()) {
             Instance instance = (Instance) inst.nextElement();
             try {
@@ -335,6 +319,6 @@ public class DeltaRuleBatch extends DeltaRule {
             } catch (Exception e) {
                 e.printStackTrace();
             }
-        }
+        }*/
     }
 }
