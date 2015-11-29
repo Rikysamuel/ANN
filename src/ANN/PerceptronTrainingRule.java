@@ -111,6 +111,7 @@ public class PerceptronTrainingRule extends Classifier {
 
     /* Initialize final delta weight resulted per epoch */
     public void initializeFinalDeltaWeight() {
+        finalDeltaWeight.clear();
         for (int i=0;i<numClasses;i++) {
             Double[] finalDeltaWeightPerClass = new Double[numAttributes-1];
             for (int j=0;j<numAttributes-1;j++) {
@@ -122,6 +123,7 @@ public class PerceptronTrainingRule extends Classifier {
 
     /* Initialize final new weight resulted per epoch */
     public void initializeFinalNewWeight() {
+        finalNewWeight.clear();
         for (int i=0;i<numClasses;i++) {
             Double[] finalNewWeightPerClass = new Double[numAttributes-1];
             for (int j=0;j<numAttributes-1;j++) {

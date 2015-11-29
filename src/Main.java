@@ -25,10 +25,10 @@ public class Main {
 //        Util.loadARFF("data/iris.arff");
 //        Util.loadARFF("data/iris.2D.arff");
 
-     //   Util.loadARFF("D:\\weka-3-6\\data\\weather.nominal.arff");
+        Util.loadARFF("D:\\weka-3-6\\data\\weather.nominal.arff");
      //   Util.loadARFF("D:\\weka-3-6\\data\\weather.numeric.arff");
-     //   Util.loadARFF("D:\\weka-3-6\\data\\iris.arff");
-        Util.loadARFF("D:\\weka-3-6\\data\\iris.2D.arff");
+      //  Util.loadARFF("D:\\weka-3-6\\data\\iris.arff");
+      //  Util.loadARFF("D:\\weka-3-6\\data\\iris.2D.arff");
 
         Instances data = Util.setNominalToBinary(Util.getData());
         data = Util.useNormalization(data);
@@ -38,6 +38,6 @@ public class Main {
 
       //  Util.FullSchema(data);
         Util.FoldSchema(data, 10);
-    //    Util.PercentageSplit(data, 66.67, "batch");
+       // Util.PercentageSplit(data, 66.67, "batch");
     }
 }

@@ -54,6 +54,7 @@ public class DeltaRuleIncremental extends DeltaRule {
 
     @Override
     public void initializeFinalDeltaWeight() {
+        finalDeltaWeight.clear();
         for (int i=0;i<numClasses;i++) {
             Double[] finalDeltaWeightPerClass = new Double[numAttributes-1];
             for (int j=0;j<numAttributes-1;j++) {
@@ -65,6 +66,7 @@ public class DeltaRuleIncremental extends DeltaRule {
 
     @Override
     public void initializeFinalNewWeight() {
+        finalNewWeight.clear();
         for (int i=0;i<numClasses;i++) {
             Double[] finalNewWeightPerClass = new Double[numAttributes-1];
             for (int j=0;j<numAttributes-1;j++) {
