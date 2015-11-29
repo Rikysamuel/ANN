@@ -3,7 +3,7 @@ import Util.Options;
 import weka.core.Instances;
 
 /**
- * Main class
+ * Main class 
  * Created by rikysamuel on 11/20/2015.
  */
 public class Main {
