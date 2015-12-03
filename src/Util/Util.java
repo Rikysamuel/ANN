@@ -146,30 +146,10 @@ public class Util {
                     classifier = new BackPropagation(data);
                     break;
                 case "batch" :
-                    DeltaRuleBatch batch = new DeltaRuleBatch();
-                    data = Util.setNominalToBinary(data);
-                    data = Util.useNormalization(data);
-                    data.setClassIndex(data.numAttributes()-1);
-                    batch.setInputData(data);
-                    batch.setLearningRate(0.1);
-                    batch.setMomentum(0.1);
-                    batch.setNumEpoch(1000);
-                    batch.setThresholdError(0.001);
-
-                    classifier = batch;
+                    classifier = new DeltaRuleBatch(data);
                     break;
                 case "incremental" :
-                    DeltaRuleIncremental incremental = new DeltaRuleIncremental();
-                    data = Util.setNominalToBinary(data);
-                    data = Util.useNormalization(data);
-                    data.setClassIndex(data.numAttributes()-1);
-                    incremental.setInputData(data);
-                    incremental.setLearningRate(0.1);
-                    incremental.setMomentum(0);
-                    incremental.setNumEpoch(1000);
-                    incremental.setThresholdError(0.001);
-
-                    classifier = incremental;
+                    classifier = new DeltaRuleIncremental(data);
                     break;
                 case "perceptron" :
                     classifier = new PerceptronTrainingRule(data);
@@ -310,10 +290,10 @@ public class Util {
                     classifier = new BackPropagation(data);
                     break;
                 case "batch" :
-                    classifier = new DeltaRuleBatch();
+                    classifier = new DeltaRuleBatch(data);
                     break;
                 case "incremental" :
-                    classifier = new DeltaRuleIncremental();
+                    classifier = new DeltaRuleIncremental(data);
                     break;
                 case "perceptron" :
                     classifier = new PerceptronTrainingRule(data);

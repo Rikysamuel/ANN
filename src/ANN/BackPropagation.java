@@ -37,7 +37,7 @@ public class BackPropagation extends Classifier {
 
         initWeight = Options.initWeight;
         if (Double.compare(initWeight, -1) == 0) {
-            initWeight = new Random().nextDouble() - 0.5;
+            initWeight = new Random().nextDouble() - 0.05;
         }
         numOfHiddenNeuron = Options.numOfHiddenNeuron;
         momentum = Options.momentum;

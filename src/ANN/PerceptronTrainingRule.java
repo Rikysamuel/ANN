@@ -153,17 +153,17 @@ public class PerceptronTrainingRule extends Classifier {
     }
 
     /* Randomize or generalize weight each input */
-    public void loadOrGenerateInputWeight(boolean isRandom) {
+    public void loadOrGenerateInputWeight() {
         for (int i=0;i<numClasses;i++) {
             List<Double[]> listInputWeightPerClass = new ArrayList<>();
             for (int j=0;j<numData;j++) {
                 Double[] inputWeightPerData = new Double[numAttributes-1];
                 for (int k=0;k<numAttributes-1;k++) {
-                    if (isRandom) {
+                    if (Double.compare(Options.initWeight,-1) == 0) {
                         Random random = new Random();
-                        inputWeightPerData[k] = (double) random.nextInt(1);
+                        inputWeightPerData[k] = random.nextDouble() - 0.05;
                     } else {
-                        inputWeightPerData[k] = 0.0;
+                        inputWeightPerData[k] = Options.initWeight;
                     }
                 }
                 listInputWeightPerClass.add(inputWeightPerData);
@@ -302,7 +302,7 @@ public class PerceptronTrainingRule extends Classifier {
     public void buildClassifier(Instances instances) throws Exception {
         loadInstancesIntoInputValue(instances);
         loadTargetFromInstances(instances);
-        loadOrGenerateInputWeight(false);
+        loadOrGenerateInputWeight();
         initializeFinalDeltaWeight();
         initializeFinalNewWeight();
         for (int i=0;i<maxEpoch;i++) {

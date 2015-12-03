@@ -14,18 +14,18 @@ public class Main {
         Options.biasValue = 1;
         Options.biasWeight = 0.1;
         Options.initWeight = 0.1;
-        Options.numOfHiddenNeuron = 2;
+        Options.numOfHiddenNeuron = 0;
         Options.momentum = 0.1;
         Options.learningRate = 0.1;
         Options.maxEpoch = 1000;
-        Options.function = "sign";
+        Options.function = "sigmoid";
 //        Options.MSEthreshold = 0.3387570349024238;
 
 
-      //  Util.loadARFF("D:\\weka-3-6\\data\\weather.nominal.arff");
+     //   Util.loadARFF("D:\\weka-3-6\\data\\weather.nominal.arff");
        // Util.loadARFF("D:\\weka-3-6\\data\\weather.numeric.arff");
       //  Util.loadARFF("D:\\weka-3-6\\data\\iris.arff");
-        Util.loadARFF("D:\\weka-3-6\\data\\iris.2D.arff");
+    //     Util.loadARFF("D:\\weka-3-6\\data\\iris.2D.arff");
 
 //        Util.loadARFF("C:\\Program Files (x86)\\Weka-3-7\data\\simple.weather.arff");
 //        Util.loadARFF("C:\\Program Files (x86)\\Weka-3-7\\data\\weather.nominal.arff");
@@ -38,10 +38,10 @@ public class Main {
         data = Util.useNormalization(data);
         Util.setData(data);
 
-        Util.buildModel("perceptron");
+        Util.buildModel("batch");
 
-      //  Util.FullSchema(data);
+     //   Util.FullSchema(data);
         Util.FoldSchema(data, 10);
-      //  Util.PercentageSplit(data, 66.67, "perceptron");
+     //   Util.PercentageSplit(data, 66.67, "incremental");
     }
 }

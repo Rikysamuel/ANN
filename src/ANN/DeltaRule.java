@@ -94,7 +94,7 @@ public abstract class DeltaRule extends Classifier {
     public abstract void loadInstancesIntoInputValue(Instances instances);
 
     /* Randomize or generalize weight each input */
-    public abstract void loadOrGenerateInputWeight(boolean isRandom);
+    public abstract void loadOrGenerateInputWeight();
 
     /* Load target value from arff file */
     public abstract void loadTargetFromInstances(Instances instances);
